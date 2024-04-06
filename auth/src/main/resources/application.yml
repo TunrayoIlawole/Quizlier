@@ -1,0 +1,31 @@
+spring:
+  main:
+    allow-circular-references: true
+  application:
+    name: auth
+  datasource:
+    url: jdbc:postgresql://localhost:5434/common
+    username: tunrayo
+    password: woolwinder7&
+  jpa:
+    hibernate.ddl-auto: validate
+    properties:
+      hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
+      hibernate.format_sql: false
+      hibernate.show_sql : false
+      hibernate.jdbc.lob.non_contextual_creation : true
+    hibernate.naming:
+      implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyJpaImpl
+      physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+#    flyway:
+#      enabled: true
+#      url: jdbc:postgresql://localhost:5432/auth
+#      password: woolwinder7&
+#      user: tunrayo
+#      schemas: migrations
+#      locations: classpath:db/migration/postgresql
+    
+server:
+  port: 8052
+  servlet:
+    context-path: /auth
