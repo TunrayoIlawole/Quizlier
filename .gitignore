@@ -1,0 +1,4 @@
+auth/data/*
+common/data/*
+.DS_Store
+.settings*
