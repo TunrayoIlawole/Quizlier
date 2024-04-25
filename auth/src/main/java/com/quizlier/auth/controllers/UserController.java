@@ -67,7 +67,6 @@ public class UserController {
 		return userService.signInUser(userLoginRequest);
 	}
 	
-	@PostMapping("/generateToken")
 	public String authenticateAndGetToken(@RequestBody AuthRequest authRequest) {
 		Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword()));
 		
