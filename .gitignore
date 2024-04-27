@@ -2,3 +2,4 @@ auth/data/*
 common/data/*
 .DS_Store
 .settings*
+core/data/postgres/*
