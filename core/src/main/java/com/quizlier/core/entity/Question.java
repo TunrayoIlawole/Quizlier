@@ -27,6 +27,14 @@ public class Question {
     @ManyToOne
     private Category category;
     
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+    
     public String getQuestion() {
 		return question;
 	}
