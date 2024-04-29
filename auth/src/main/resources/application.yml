@@ -4,7 +4,7 @@ spring:
   application:
     name: auth
   datasource:
-    url: jdbc:postgresql://localhost:5434/common
+    url: jdbc:postgresql://localhost:5435/auth
     username: tunrayo
     password: woolwinder7&
   jpa:
@@ -17,13 +17,13 @@ spring:
     hibernate.naming:
       implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyJpaImpl
       physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
-#    flyway:
-#      enabled: true
-#      url: jdbc:postgresql://localhost:5432/auth
-#      password: woolwinder7&
-#      user: tunrayo
-#      schemas: migrations
-#      locations: classpath:db/migration/postgresql
+    flyway:
+      enabled: true
+      url: jdbc:postgresql://localhost:5435/auth
+      password: woolwinder7&
+      user: tunrayo
+      schemas: migrations
+      locations: classpath:db/migration/postgresql
     
 server:
   port: 8052
