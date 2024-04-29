@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.quizlier.core.dto.CategoryRequest;
+import com.quizlier.common.dto.CategoryRequest;
 import com.quizlier.core.service.CategoryService;
 
 @RestController

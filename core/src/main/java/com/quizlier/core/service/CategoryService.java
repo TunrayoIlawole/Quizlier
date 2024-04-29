@@ -12,12 +12,12 @@ import org.springframework.http.ResponseEntity;
 import com.quizlier.common.vo.ResponseData;
 import com.quizlier.common.vo.ServiceMessages;
 import com.quizlier.common.vo.ServiceStatusCodes;
-import com.quizlier.core.dto.CategoryRequest;
-import com.quizlier.core.dto.CategoryResponse;
-import com.quizlier.core.dto.CategoryResponseFull;
-import com.quizlier.core.dto.QuestionResponse;
-import com.quizlier.core.entity.Category;
-import com.quizlier.core.entity.Question;
+import com.quizlier.common.dto.CategoryRequest;
+import com.quizlier.common.dto.CategoryResponse;
+import com.quizlier.common.dto.CategoryResponseFull;
+import com.quizlier.common.dto.QuestionResponse;
+import com.quizlier.common.entity.Category;
+import com.quizlier.common.entity.Question;
 import com.quizlier.core.repository.CategoryRepository;
 import com.quizlier.core.repository.QuestionRepository;
 

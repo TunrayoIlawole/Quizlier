@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.quizlier.core.dto.OptionRequest;
+import com.quizlier.common.dto.OptionRequest;
 import com.quizlier.core.service.OptionService;
 
 public class OptionController {
