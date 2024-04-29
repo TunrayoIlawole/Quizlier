@@ -30,7 +30,7 @@ public class OptionService {
 	@Autowired
 	private QuestionRepository questionRepository;
 	
-	private ResponseEntity createOption(OptionRequest request, Long questionId) {
+	public ResponseEntity createOption(OptionRequest request, Long questionId) {
 		try {
 			ResponseData response = new ResponseData<>(ServiceStatusCodes.ERROR, ServiceMessages.GENERAL_ERROR_MESSAGE);
 			
@@ -79,7 +79,7 @@ public class OptionService {
 		}
 	}
 	
-	private ResponseEntity getAllOptionsByQuestions(Long questionId) {
+	public ResponseEntity getAllOptionsByQuestions(Long questionId) {
 		try {
 			ResponseData response = new ResponseData<>(ServiceStatusCodes.ERROR, ServiceMessages.GENERAL_ERROR_MESSAGE);
 			
@@ -119,7 +119,7 @@ public class OptionService {
 		}
 	}
 	
-	private ResponseEntity updateOption(Long optionId, String optionText, Boolean isCorrect) {
+	public ResponseEntity updateOption(Long optionId, String optionText, Boolean isCorrect) {
 		try {
 			ResponseData response = new ResponseData<>(ServiceStatusCodes.ERROR, ServiceMessages.GENERAL_ERROR_MESSAGE);
 
@@ -168,7 +168,7 @@ public class OptionService {
 		
 	}
 	
-	private ResponseEntity deleteOption(Long optionId) {
+	public ResponseEntity deleteOption(Long optionId) {
 		ResponseData response = new ResponseData<>(ServiceStatusCodes.ERROR, ServiceMessages.GENERAL_ERROR_MESSAGE);
 
 		boolean exists = optionRepository.existsById(optionId);

@@ -34,7 +34,7 @@ public class QuestionService {
 	@Autowired
 	OptionRepository optionRepository;
 	
-	private ResponseEntity createQuestion(QuestionRequest request, Long categoryId) {
+	public ResponseEntity createQuestion(QuestionRequest request, Long categoryId) {
 		try {
 			ResponseData response = new ResponseData<>(ServiceStatusCodes.ERROR, ServiceMessages.GENERAL_ERROR_MESSAGE);
 			
@@ -71,7 +71,7 @@ public class QuestionService {
 		}
 	}
 	
-	private ResponseEntity getAllQuestions() {
+	public ResponseEntity getAllQuestions() {
 		try {
 			ResponseData response = new ResponseData<>(ServiceStatusCodes.ERROR, ServiceMessages.GENERAL_ERROR_MESSAGE);
 
@@ -91,7 +91,7 @@ public class QuestionService {
 		}
 	}
 	
-	private ResponseEntity getAllQuestionsByCategory(Long categoryId) {
+	public ResponseEntity getAllQuestionsByCategory(Long categoryId) {
 		try {
 			ResponseData response = new ResponseData<>(ServiceStatusCodes.ERROR, ServiceMessages.GENERAL_ERROR_MESSAGE);
 			
@@ -130,7 +130,7 @@ public class QuestionService {
 		}
 	}
 	
-	private ResponseEntity getQuestion(Long questionId) {
+	public ResponseEntity getQuestion(Long questionId) {
 		try {
 			ResponseData response = new ResponseData<>(ServiceStatusCodes.ERROR, ServiceMessages.GENERAL_ERROR_MESSAGE);
 
@@ -179,7 +179,7 @@ public class QuestionService {
 		}
 	}
 	
-	private ResponseEntity updateQuestion(Long questionId, String questionText) {
+	public ResponseEntity updateQuestion(Long questionId, String questionText) {
 		try {
 			ResponseData response = new ResponseData<>(ServiceStatusCodes.ERROR, ServiceMessages.GENERAL_ERROR_MESSAGE);
 
@@ -216,7 +216,7 @@ public class QuestionService {
 		
 	}
 	
-	private ResponseEntity deleteQuestion(Long questionId) {
+	public ResponseEntity deleteQuestion(Long questionId) {
 		ResponseData response = new ResponseData<>(ServiceStatusCodes.ERROR, ServiceMessages.GENERAL_ERROR_MESSAGE);
 
 		boolean exists = questionRepository.existsById(questionId);

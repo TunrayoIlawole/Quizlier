@@ -30,7 +30,7 @@ public class CategoryService {
 	private QuestionRepository questionRepository;
 	
 	
-	private ResponseEntity createCategory(CategoryRequest request) {
+	public ResponseEntity createCategory(CategoryRequest request) {
 		try {
 			ResponseData response = new ResponseData<>(ServiceStatusCodes.ERROR, ServiceMessages.GENERAL_ERROR_MESSAGE);
 			
@@ -60,7 +60,7 @@ public class CategoryService {
 		}
 	}
 	
-	private ResponseEntity getAllCategories() {
+	public ResponseEntity getAllCategories() {
 		try {
 			ResponseData response = new ResponseData<>(ServiceStatusCodes.ERROR, ServiceMessages.GENERAL_ERROR_MESSAGE);
 
@@ -93,7 +93,7 @@ public class CategoryService {
 		}
 	}
 	
-	private ResponseEntity getCategory(Long categoryId) {
+	public ResponseEntity getCategory(Long categoryId) {
 		try {
 			ResponseData response = new ResponseData<>(ServiceStatusCodes.ERROR, ServiceMessages.GENERAL_ERROR_MESSAGE);
 
@@ -142,7 +142,7 @@ public class CategoryService {
 		}
 	}
 	
-	private ResponseEntity updateCategory(Long categoryId, String name, String description) {
+	public ResponseEntity updateCategory(Long categoryId, String name, String description) {
 		try {
 			ResponseData response = new ResponseData<>(ServiceStatusCodes.ERROR, ServiceMessages.GENERAL_ERROR_MESSAGE);
 
@@ -182,7 +182,7 @@ public class CategoryService {
 		
 	}
 	
-	private ResponseEntity deleteCategory(Long categoryId) {
+	public ResponseEntity deleteCategory(Long categoryId) {
 		ResponseData response = new ResponseData<>(ServiceStatusCodes.ERROR, ServiceMessages.GENERAL_ERROR_MESSAGE);
 
 		boolean exists = categoryRepository.existsById(categoryId);
