@@ -8,19 +8,21 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
 
-import com.quizlier.common.vo.ResponseData;
-import com.quizlier.common.vo.ServiceMessages;
-import com.quizlier.common.vo.ServiceStatusCodes;
 import com.quizlier.common.dto.CategoryRequest;
 import com.quizlier.common.dto.CategoryResponse;
 import com.quizlier.common.dto.CategoryResponseFull;
 import com.quizlier.common.dto.QuestionResponse;
 import com.quizlier.common.entity.Category;
 import com.quizlier.common.entity.Question;
+import com.quizlier.common.vo.ResponseData;
+import com.quizlier.common.vo.ServiceMessages;
+import com.quizlier.common.vo.ServiceStatusCodes;
 import com.quizlier.core.repository.CategoryRepository;
 import com.quizlier.core.repository.QuestionRepository;
 
+@Service
 public class CategoryService {
 	
 	@Autowired

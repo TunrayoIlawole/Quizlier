@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 
 import com.quizlier.common.entity.Question;
 
+
 @Repository
 @EntityScan("com.quizlier.common")
 public interface QuestionRepository extends JpaRepository<Question, Long> {
