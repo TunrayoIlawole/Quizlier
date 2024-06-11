@@ -34,7 +34,7 @@ public class QuestionService {
 	private CategoryRepository categoryRepository;
 	
 	@Autowired
-	OptionRepository optionRepository;
+	private OptionRepository optionRepository;
 	
 	public ResponseEntity createQuestion(QuestionRequest request, Long categoryId) {
 		try {
