@@ -4,6 +4,7 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -37,9 +38,9 @@ public class UserService implements UserDetailsService {
 //		this.passwordEncryption = passwordEncryption;
 //	}
 	
-	public ResponseEntity createUser(UserRequest userRequest) {
+	public ResponseEntity createPlayerUser(UserRequest userRequest) {
 		try {
-		ResponseData response = new ResponseData<>(ServiceStatusCodes.ERROR, ServiceMessages.GENERAL_ERROR_MESSAGE);
+		ResponseData<User> response = new ResponseData<>(ServiceStatusCodes.ERROR, ServiceMessages.GENERAL_ERROR_MESSAGE);
 		
 		Optional<User> userByEmail = userRepository.findUserByEmail(userRequest.getEmail());
 		
@@ -79,15 +80,15 @@ public class UserService implements UserDetailsService {
 		}
 	}
 	
-	public ResponseEntity signInUser (UserLoginRequest userLoginRequest) {
+	public ResponseEntity signInPlayer (UserLoginRequest userLoginRequest) {
 		try {
-			ResponseData response = new ResponseData<>(ServiceStatusCodes.ERROR, ServiceMessages.GENERAL_ERROR_MESSAGE);
+			ResponseData<User> response = new ResponseData<>(ServiceStatusCodes.ERROR, ServiceMessages.GENERAL_ERROR_MESSAGE);
 			
 			Optional<User> userByEmail = userRepository.findUserByEmail(userLoginRequest.getEmail());
 			
 			if (!userByEmail.isPresent()) {
 				response.setMessage(ServiceMessages.INVALID_USER);
-				return ResponseEntity.notFound().build();
+				return ResponseEntity.status(HttpStatusCode.valueOf(400)).body(response);
 			} else {
 				Boolean matched = encoder.matches(userLoginRequest.getPassword(), userByEmail.get().getPassword());
 //				String hashedPassword = passwordEncryption.toHexString(passwordEncryption.getSHA(userLoginRequest.getPassword()));
@@ -96,14 +97,10 @@ public class UserService implements UserDetailsService {
 					response.setMessage(ServiceMessages.CREDENTIALS_MISMATCH);
 					return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
 				} else {
-					System.out.println("Login successful");
-					return null;
+					response.setMessage("Sign in successful");
+					response.setData(userByEmail.get());
+					return ResponseEntity.ok().body(response);
 				}
-				
-				// If user exists and password is correct:
-				
-				// Create a user session?
-//				return null;
 			}
 		} catch (Exception e) {
 			// TODO: handle exception
