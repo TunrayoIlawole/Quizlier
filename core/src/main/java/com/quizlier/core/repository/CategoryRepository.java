@@ -11,8 +11,7 @@ import org.springframework.stereotype.Repository;
 import com.quizlier.common.entity.Category;
 
 @Repository
-@EntityScan("com.quizlier.common")
 public interface CategoryRepository extends JpaRepository<Category, Long> {
-	@Query("SELECT c FROM Category WHERE c.name = :name")
+	@Query("SELECT c FROM Category c WHERE c.name = :name")
 	Optional<Category> findCategoryByName(@Param("name") String name);
 }
