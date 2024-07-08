@@ -2,10 +2,10 @@ package com.quizlier.auth.service;
 
 import java.util.Optional;
 
+import com.quizlier.auth.exceptions.AuthenticationFailedException;
+import com.quizlier.auth.exceptions.DuplicateUserException;
+import com.quizlier.auth.exceptions.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -13,7 +13,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.quizlier.auth.repository.UserRepository;
-import com.quizlier.auth.utils.PasswordEncryption;
 import com.quizlier.auth.utils.UserInfoDetails;
 import com.quizlier.common.dto.UserLoginRequest;
 import com.quizlier.common.dto.UserRequest;
@@ -38,73 +37,55 @@ public class UserService implements UserDetailsService {
 //		this.passwordEncryption = passwordEncryption;
 //	}
 	
-	public ResponseEntity createPlayerUser(UserRequest userRequest) {
+	public User createPlayerUser(UserRequest userRequest, String role) throws DuplicateUserException {
 		try {
-		ResponseData<User> response = new ResponseData<>(ServiceStatusCodes.ERROR, ServiceMessages.GENERAL_ERROR_MESSAGE);
-		
 		Optional<User> userByEmail = userRepository.findUserByEmail(userRequest.getEmail());
 		
 		Optional<User> userByUsername = userRepository.findUserByUsername(userRequest.getUsername());
 		
 		if (userByEmail.isPresent()) {
-			response.setMessage(ServiceMessages.DUPLICATE_EMAIL);
-			return ResponseEntity.badRequest().body(response);
+			throw new DuplicateUserException(ServiceMessages.DUPLICATE_EMAIL);
 		}
-		
 		if (userByUsername.isPresent()) {
-			response.setMessage(ServiceMessages.DUPLICATE_USERNAME);
-			return ResponseEntity.badRequest().body(response);
+			throw new DuplicateUserException(ServiceMessages.DUPLICATE_USERNAME);
 		}
 		
 		User user = new User();
+		UserRole userRole = role.equalsIgnoreCase("admin") ? UserRole.admin : UserRole.player;
 		
 		user.setEmail(userRequest.getEmail());
 		user.setUsername(userRequest.getUsername());
 		user.setFirstName(userRequest.getFirstName());
 		user.setLastName(userRequest.getLastName());
 		user.setPassword(encoder.encode(userRequest.getPassword()));
-		user.setUserRole(UserRole.player);
+		user.setUserRole(userRole);
 		
 		userRepository.save(user);
 		
-		response.setStatus(ServiceStatusCodes.SUCCESS);
-		response.setMessage(ServiceMessages.SUCCESS_RESPONSE);
-		response.setData(user);
-		
-		return ResponseEntity.ok().body(response);
-		
-		
+		return user;
 		} catch (Exception e) {
-			// TODO: handle exception
-			return ResponseEntity.internalServerError().body(e.getMessage());
+			throw e;
 		}
 	}
 	
-	public ResponseEntity signInPlayer (UserLoginRequest userLoginRequest) {
+	public User signInPlayer (UserLoginRequest userLoginRequest) throws UserNotFoundException, AuthenticationFailedException {
 		try {
-			ResponseData<User> response = new ResponseData<>(ServiceStatusCodes.ERROR, ServiceMessages.GENERAL_ERROR_MESSAGE);
-			
 			Optional<User> userByEmail = userRepository.findUserByEmail(userLoginRequest.getEmail());
 			
 			if (!userByEmail.isPresent()) {
-				response.setMessage(ServiceMessages.INVALID_USER);
-				return ResponseEntity.status(HttpStatusCode.valueOf(400)).body(response);
+				throw new UserNotFoundException(ServiceMessages.INVALID_USER);
 			} else {
 				Boolean matched = encoder.matches(userLoginRequest.getPassword(), userByEmail.get().getPassword());
 //				String hashedPassword = passwordEncryption.toHexString(passwordEncryption.getSHA(userLoginRequest.getPassword()));
 				
 				if (!matched) {
-					response.setMessage(ServiceMessages.CREDENTIALS_MISMATCH);
-					return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+					throw new AuthenticationFailedException(ServiceMessages.CREDENTIALS_MISMATCH);
 				} else {
-					response.setMessage("Sign in successful");
-					response.setData(userByEmail.get());
-					return ResponseEntity.ok().body(response);
+					return userByEmail.get();
 				}
 			}
 		} catch (Exception e) {
-			// TODO: handle exception
-			return ResponseEntity.internalServerError().body(e.getMessage());
+			throw e;
 		}
 	}
 	

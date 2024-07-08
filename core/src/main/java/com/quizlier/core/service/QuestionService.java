@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import com.quizlier.core.exceptions.DuplicateEntityException;
+import com.quizlier.core.exceptions.InvalidEntityException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -36,22 +38,17 @@ public class QuestionService {
 	@Autowired
 	private OptionRepository optionRepository;
 	
-	public ResponseEntity createQuestion(QuestionRequest request, Long categoryId) {
-		try {
-			ResponseData response = new ResponseData<>(ServiceStatusCodes.ERROR, ServiceMessages.GENERAL_ERROR_MESSAGE);
-			
+	public Question createQuestion(QuestionRequest request, Long categoryId) throws InvalidEntityException, DuplicateEntityException {
 			Optional<Category> category = categoryRepository.findById(categoryId);
 			
 			if (category.isEmpty()) {
-				response.setMessage(null);
-				return ResponseEntity.badRequest().body(response);
+				throw new InvalidEntityException(String.format("Question with id %s does not exist", categoryId));
 			}
 			
 			Optional<Question> existingQuestion = questionRepository.getQuestion(request.getQuestion());
 			
 			if (existingQuestion.isPresent()) {
-				response.setMessage(null);
-				return ResponseEntity.badRequest().body(response);
+				throw new DuplicateEntityException("Question already exists");
 			}
 			
 			Question question = new Question();
@@ -61,47 +58,20 @@ public class QuestionService {
 			
 			questionRepository.save(question);
 			
-			response.setStatus(ServiceStatusCodes.SUCCESS);
-			response.setMessage(ServiceMessages.SUCCESS_RESPONSE);
-			response.setData(question);
-			
-			return ResponseEntity.ok().body(response);
-		} catch (Exception e) {
-			// TODO: handle exception
-			return ResponseEntity.internalServerError().body(e.getMessage());
-
-		}
+			return question;
 	}
 	
-	public ResponseEntity getAllQuestions() {
-		try {
-			ResponseData response = new ResponseData<>(ServiceStatusCodes.ERROR, ServiceMessages.GENERAL_ERROR_MESSAGE);
-
+	public List<Question> getAllQuestions() {
 			List<Question> questions = questionRepository.findAll();
 			
-			response.setStatus(ServiceStatusCodes.SUCCESS);
-			response.setData(questions);
-			response.setMessage(null);
-			
-			return ResponseEntity.ok().body(response);
-
-		} catch (Exception e) {
-			// TODO: handle exception
-			
-			return ResponseEntity.internalServerError().body(e.getMessage());
-
-		}
+			return questions;
 	}
 	
-	public ResponseEntity getAllQuestionsByCategory(Long categoryId) {
-		try {
-			ResponseData response = new ResponseData<>(ServiceStatusCodes.ERROR, ServiceMessages.GENERAL_ERROR_MESSAGE);
-			
+	public List<QuestionResponse> getAllQuestionsByCategory(Long categoryId) throws InvalidEntityException {
 			Optional<Category> category = categoryRepository.findById(categoryId);
 			
 			if (category.isEmpty()) {
-				response.setMessage(null);
-				return ResponseEntity.badRequest().body(response);
+				throw new InvalidEntityException(String.format("Category with id %s does not exist", categoryId));
 			}
 
 			List<Question> questions = questionRepository.getQuestionsForCategory(categoryId);
@@ -118,29 +88,14 @@ public class QuestionService {
 		    	responseList.add(questionResponse);
 		    });
 			
-			response.setStatus(ServiceStatusCodes.SUCCESS);
-			response.setData(responseList);
-			response.setMessage(ServiceMessages.SUCCESS_RESPONSE);
-			
-			return ResponseEntity.ok().body(response);
-
-		} catch (Exception e) {
-			// TODO: handle exception
-			
-			return ResponseEntity.internalServerError().body(e.getMessage());
-
-		}
+			return responseList;
 	}
 	
-	public ResponseEntity getQuestion(Long questionId) {
-		try {
-			ResponseData response = new ResponseData<>(ServiceStatusCodes.ERROR, ServiceMessages.GENERAL_ERROR_MESSAGE);
-
+	public QuestionResponseFull getQuestion(Long questionId) throws InvalidEntityException {
 			Optional<Question> question = questionRepository.findById(questionId);
 			
 			if (question.isEmpty()) {
-				response.setMessage(String.format("Question with id %s does not exist", questionId));
-				return ResponseEntity.notFound().build();
+				throw new InvalidEntityException(String.format("Question with id %s does not exist", questionId));
 			}
 			
 			QuestionResponseFull data = new QuestionResponseFull();
@@ -167,37 +122,20 @@ public class QuestionService {
 			
 			data.setOptions(optionList);
 			
-			response.setStatus(ServiceStatusCodes.SUCCESS);
-			response.setMessage(ServiceMessages.SUCCESS_RESPONSE);
-			response.setData(data);
-			
-			return ResponseEntity.ok().body(response);
-
-		} catch (Exception e) {
-			// TODO: handle exception
-			
-			return ResponseEntity.internalServerError().body(e.getMessage());
-
-		}
+			return data;
 	}
 	
-	public ResponseEntity updateQuestion(Long questionId, String questionText) {
-		try {
-			ResponseData response = new ResponseData<>(ServiceStatusCodes.ERROR, ServiceMessages.GENERAL_ERROR_MESSAGE);
-
+	public Question updateQuestion(Long questionId, String questionText) throws InvalidEntityException, DuplicateEntityException {
 			Optional<Question> question = questionRepository.findById(questionId);
 		
 			if (question.isEmpty()) {
-				response.setMessage(String.format("Question with id %s does not exist", questionId));
-				return ResponseEntity.notFound().build();
+				throw new InvalidEntityException(String.format("Question with id %s does not exist", questionId));
 			}
-			
 			
 			if (questionText != null && questionText.length() > 0 && !Objects.equals(question.get().getQuestion(), questionText)) {
 				Optional<Question> existingQuestion = questionRepository.getQuestion(questionText);
 				if (existingQuestion.isPresent()) {
-					response.setMessage(String.format("Question text %s already taken", questionText));
-					return ResponseEntity.notFound().build();
+					throw new DuplicateEntityException(String.format("Question text %s already taken", questionText));
 				}
 				question.get().setQuestion(questionText);
 			}
@@ -205,31 +143,16 @@ public class QuestionService {
 			question.get().setUpdatedAt(Calendar.getInstance().getTime());
 			questionRepository.save(question.get());
 			
-			return ResponseEntity.ok().body(response);
-
-			
-		} catch (Exception e) {
-			// TODO: handle exception
-			return ResponseEntity.internalServerError().body(e.getMessage());
-
-		}
-		
-		
-		
+			return question.get();
 	}
 	
-	public ResponseEntity deleteQuestion(Long questionId) {
-		ResponseData response = new ResponseData<>(ServiceStatusCodes.ERROR, ServiceMessages.GENERAL_ERROR_MESSAGE);
-
+	public void deleteQuestion(Long questionId) throws InvalidEntityException {
 		boolean exists = questionRepository.existsById(questionId);
 		
 		if (!exists) {
-			response.setMessage(String.format("Question with id %s does not exist", questionId));
-			return ResponseEntity.notFound().build();
+			throw new InvalidEntityException(String.format("Question with id %s does not exist", questionId));
 		}
 		questionRepository.deleteById(questionId);
-		
-		return ResponseEntity.ok().body(response);
 
 	}
 

@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import com.quizlier.core.exceptions.DuplicateEntityException;
+import com.quizlier.core.exceptions.InvalidEntityException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -29,15 +31,12 @@ public class OptionService {
 	@Autowired
 	private QuestionRepository questionRepository;
 	
-	public ResponseEntity createOption(OptionRequest request, Long questionId) {
+	public Option createOption(OptionRequest request, Long questionId) throws InvalidEntityException, DuplicateEntityException {
 		try {
-			ResponseData response = new ResponseData<>(ServiceStatusCodes.ERROR, ServiceMessages.GENERAL_ERROR_MESSAGE);
-			
 			Optional<Question> question = questionRepository.findById(questionId);
 			
 			if (question.isEmpty()) {
-				response.setMessage(null);
-				return ResponseEntity.badRequest().body(response);
+				throw new InvalidEntityException(String.format("Question with id %s does not exist", questionId));
 			}
 			
 			Option existingOption = null;
@@ -59,34 +58,25 @@ public class OptionService {
 				option.setCreatedAt(Calendar.getInstance().getTime());
 				option.setQuestion(question.get());
 				
-				
 				optionRepository.save(option);
-				
-				response.setStatus(ServiceStatusCodes.SUCCESS);
-				response.setMessage(ServiceMessages.SUCCESS_RESPONSE);
-				response.setData(option);
+
+				return option;
 			} else {
-				response.setMessage("Option already exists for this question");
-				return ResponseEntity.badRequest().body(response);
+				throw new DuplicateEntityException("Option already exists for this question");
 			}
-			return ResponseEntity.ok().body(response);
 
 		} catch (Exception e) {
-			// TODO: handle exception
-			return ResponseEntity.internalServerError().body(e.getMessage());
+			throw e;
 
 		}
 	}
 	
-	public ResponseEntity getAllOptionsByQuestions(Long questionId) {
+	public List<OptionResponse> getAllOptionsByQuestions(Long questionId) throws InvalidEntityException {
 		try {
-			ResponseData response = new ResponseData<>(ServiceStatusCodes.ERROR, ServiceMessages.GENERAL_ERROR_MESSAGE);
-			
 			Optional<Question> question = questionRepository.findById(questionId);
 			
 			if (question.isEmpty()) {
-				response.setMessage(null);
-				return ResponseEntity.badRequest().body(response);
+				throw new InvalidEntityException(String.format("Question with id %s does not exist", questionId));
 			}
 
 			List<Option> options = optionRepository.getOptionsForQuestions(questionId);
@@ -103,32 +93,21 @@ public class OptionService {
 		    	
 		    	responseList.add(optionResponse);
 		    });
-			
-			response.setStatus(ServiceStatusCodes.SUCCESS);
-			response.setData(responseList);
-			response.setMessage(ServiceMessages.SUCCESS_RESPONSE);
-			
-			return ResponseEntity.ok().body(response);
+			return responseList;
 
 		} catch (Exception e) {
-			// TODO: handle exception
-			
-			return ResponseEntity.internalServerError().body(e.getMessage());
+			throw e;
 
 		}
 	}
 	
-	public ResponseEntity updateOption(Long optionId, String optionText, Boolean isCorrect) {
+	public Option updateOption(Long optionId, String optionText, Boolean isCorrect) throws InvalidEntityException {
 		try {
-			ResponseData response = new ResponseData<>(ServiceStatusCodes.ERROR, ServiceMessages.GENERAL_ERROR_MESSAGE);
-
 			Optional<Option> optionById = optionRepository.findById(optionId);
 		
 			if (optionById.isEmpty()) {
-				response.setMessage(String.format("Option with id %s does not exist", optionId));
-				return ResponseEntity.notFound().build();
+				throw new InvalidEntityException(String.format("Option with id %s does not exist", optionId));
 			}
-			
 			
 			if (isCorrect != null) {
 				optionById.get().setIsCorrect(isCorrect);
@@ -149,37 +128,26 @@ public class OptionService {
 				if (existingOption == null || (existingOption != null && !Objects.equals(existingOption.getQuestion(), optionById.get().getQuestion()) || (existingOption != null && Objects.equals(existingOption.getId(), optionById.get().getId())))) {
 					optionById.get().setOption_text(optionText);
 				}
-
 			}
 			
 			optionById.get().setCreatedAt(Calendar.getInstance().getTime());
 			optionRepository.save(optionById.get());
 			
-			return ResponseEntity.ok().body(response);
+			return optionById.get();
 			
 		} catch (Exception e) {
-			// TODO: handle exception
-			return ResponseEntity.internalServerError().body(e.getMessage());
+			throw e;
 
 		}
-		
-		
-		
 	}
 	
-	public ResponseEntity deleteOption(Long optionId) {
-		ResponseData response = new ResponseData<>(ServiceStatusCodes.ERROR, ServiceMessages.GENERAL_ERROR_MESSAGE);
-
+	public void deleteOption(Long optionId) throws InvalidEntityException {
 		boolean exists = optionRepository.existsById(optionId);
 		
 		if (!exists) {
-			response.setMessage(String.format("Option with id %s does not exist", optionId));
-			return ResponseEntity.notFound().build();
+			throw new InvalidEntityException(String.format("Option with id %s does not exist", optionId));
 		}
 		optionRepository.deleteById(optionId);
-		
-		return ResponseEntity.ok().body(response);
-
 	}
 
 }
