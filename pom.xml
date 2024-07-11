@@ -22,6 +22,7 @@
 <modules>
 	<module>core</module>
 	<module>auth</module>
+	<module>eureka-server</module>
 </modules>
 
 </project>
