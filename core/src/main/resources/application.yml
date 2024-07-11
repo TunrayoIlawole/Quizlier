@@ -6,7 +6,7 @@ spring:
     username: tunrayo
     password: woolwinder7&
   jpa:
-    hibernate.ddl-auto: validate
+    hibernate.ddl-auto: update
     properties:
       hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
       hibernate.format_sql: false
@@ -21,9 +21,15 @@ spring:
       password: woolwinder7&
       user: tunrayo
       schemas: migrations
-      locations: classpath:db/migration/postgresql
 
 server:
   port: 8056
   servlet:
     context-path: /core
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/eureka
+  instance:
+    preferIpAddress: true
