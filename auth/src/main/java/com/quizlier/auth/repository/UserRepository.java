@@ -11,7 +11,6 @@ import org.springframework.stereotype.Repository;
 import com.quizlier.common.entity.User;
 
 @Repository
-@EntityScan("com.quizlier.common")
 public interface UserRepository extends JpaRepository<User, Long>{
 	@Query("SELECT u FROM User u WHERE u.email = :email")
 	Optional<User> findUserByEmail(@Param("email") String email);
