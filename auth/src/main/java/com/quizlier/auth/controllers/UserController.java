@@ -1,9 +1,9 @@
 package com.quizlier.auth.controllers;
 
-import ch.qos.logback.core.joran.spi.EventPlayer;
 import com.quizlier.auth.exceptions.AuthenticationFailedException;
 import com.quizlier.auth.exceptions.DuplicateUserException;
 import com.quizlier.auth.exceptions.UserNotFoundException;
+import com.quizlier.auth.utils.UserInfoDetails;
 import com.quizlier.common.entity.User;
 import com.quizlier.common.vo.ResponseData;
 import com.quizlier.common.vo.ServiceMessages;
@@ -16,13 +16,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.quizlier.auth.service.UserService;
 import com.quizlier.auth.utils.JwtService;
@@ -30,7 +26,7 @@ import com.quizlier.common.dto.AuthRequest;
 import com.quizlier.common.dto.UserLoginRequest;
 import com.quizlier.common.dto.UserRequest;
 
-import java.util.Objects;
+import java.util.List;
 
 @RestController
 @RequestMapping("api/v1/auth")
@@ -110,7 +106,7 @@ public class UserController {
 		}
 	}
 	
-	@PostMapping("/signin/player")
+	@PostMapping("/signin")
 	public ResponseEntity signIn(@RequestBody UserLoginRequest userLoginRequest) {
 		ResponseData response = new ResponseData<>(ServiceStatusCodes.ERROR, ServiceMessages.GENERAL_ERROR_MESSAGE);
 
@@ -127,7 +123,7 @@ public class UserController {
 				response.setMessage("User authenticated successfully");
 				return ResponseEntity.ok().body(response);
 			} else {
-				throw new UsernameNotFoundException("Invalid user request!");
+				throw new UsernameNotFoundException("Invalid user reques t!");
 			}
 		} catch (UserNotFoundException | UsernameNotFoundException ex) {
 			response.setMessage(ex.getMessage());
@@ -138,6 +134,36 @@ public class UserController {
 		} catch (Exception e) {
 			return ResponseEntity.internalServerError().body(e.getMessage());
 
+		}
+	}
+
+	@GetMapping("/validateToken")
+	public ResponseEntity<Boolean> validateToken(@RequestParam("token") String token) {
+		String username = jwtService.extractUsername(token);
+		boolean isValid = jwtService.validateToken(token, username);
+
+		return ResponseEntity.ok(isValid);
+	}
+
+	@GetMapping("/getUsername")
+	public ResponseEntity<String> fetchUsername(@RequestParam("token") String token) {
+		String username = jwtService.extractUsername(token);
+
+		return ResponseEntity.ok(username);
+	}
+
+
+
+	@GetMapping("/roles")
+	public ResponseEntity<String> getUserRoles(@RequestParam("username") String username) {
+		User user = userService.getUserByUsername(username);
+
+		if (user != null) {
+			String userRole = user.getUserRole().name();
+
+			return ResponseEntity.ok(userRole);
+		} else {
+			return ResponseEntity.notFound().build();
 		}
 	}
 	
