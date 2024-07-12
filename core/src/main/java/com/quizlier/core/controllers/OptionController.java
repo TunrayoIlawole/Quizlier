@@ -9,18 +9,15 @@ import com.quizlier.core.exceptions.DuplicateEntityException;
 import com.quizlier.core.exceptions.InvalidEntityException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
 
 import com.quizlier.common.dto.OptionRequest;
 import com.quizlier.core.service.OptionService;
 
 import java.util.List;
 
+@RequestMapping("api/v1/option")
 public class OptionController {
 	private final OptionService optionService;
 	
@@ -30,11 +27,14 @@ public class OptionController {
 	}
 	
 	@PostMapping(path = "{questionId}")
-	public ResponseEntity createOption(OptionRequest request, @PathVariable("questionId") Long questionId) {
+	@PreAuthorize("hasAuthority('ROLE_admin')")
+	public ResponseEntity createOption(@RequestBody OptionRequest request, @PathVariable("questionId") Long questionId) {
 		ResponseData response = new ResponseData<>(ServiceStatusCodes.ERROR, ServiceMessages.GENERAL_ERROR_MESSAGE);
 
 		try {
 			Option option = optionService.createOption(request, questionId);
+			response.setStatus(ServiceStatusCodes.SUCCESS);
+			response.setMessage(ServiceMessages.SUCCESS_RESPONSE);
 			response.setData(option);
 			return ResponseEntity.ok().body(response);
 		} catch (DuplicateEntityException e) {
@@ -56,6 +56,8 @@ public class OptionController {
 			List<OptionResponse> options = optionService.getAllOptionsByQuestions(questionId);
 
 			response.setData(options);
+			response.setStatus(ServiceStatusCodes.SUCCESS);
+			response.setMessage(ServiceMessages.SUCCESS_RESPONSE);
 			return ResponseEntity.ok().body(response);
 		} catch (InvalidEntityException e) {
 			response.setMessage(e.getMessage());
@@ -66,12 +68,14 @@ public class OptionController {
 	}
 	
 	@DeleteMapping(path = "{optionId}")
-	public ResponseEntity deleteCategory(@PathVariable("optionId") Long optionId) {
+	@PreAuthorize("hasAuthority('ROLE_admin')")
+	public ResponseEntity deleteOption(@PathVariable("optionId") Long optionId) {
 		ResponseData response = new ResponseData<>(ServiceStatusCodes.ERROR, ServiceMessages.GENERAL_ERROR_MESSAGE);
 
 		try {
 			optionService.deleteOption(optionId);
-
+			response.setStatus(ServiceStatusCodes.SUCCESS);
+			response.setMessage(ServiceMessages.SUCCESS_RESPONSE);
 			return ResponseEntity.ok().body(response);
 		} catch (InvalidEntityException e) {
 			response.setMessage(e.getMessage());
@@ -82,6 +86,7 @@ public class OptionController {
 	}
 	
 	@PutMapping(path = "{optionId}")
+	@PreAuthorize("hasAuthority('ROLE_admin')")
 	public ResponseEntity updateOption(@PathVariable("optionId") Long optionId, @RequestParam(required = false) String optionText, @RequestParam(required = false) Boolean isCorrect) {
 		ResponseData response = new ResponseData<>(ServiceStatusCodes.ERROR, ServiceMessages.GENERAL_ERROR_MESSAGE);
 
@@ -89,6 +94,8 @@ public class OptionController {
 			Option option = optionService.updateOption(optionId, optionText, isCorrect);
 
 			response.setData(option);
+			response.setStatus(ServiceStatusCodes.SUCCESS);
+			response.setMessage(ServiceMessages.SUCCESS_RESPONSE);
 			return ResponseEntity.ok().body(response);
 		} catch (InvalidEntityException e) {
 			response.setMessage(e.getMessage());

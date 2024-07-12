@@ -10,18 +10,15 @@ import com.quizlier.core.exceptions.DuplicateEntityException;
 import com.quizlier.core.exceptions.InvalidEntityException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
 
 import com.quizlier.common.dto.QuestionRequest;
 import com.quizlier.core.service.QuestionService;
 
 import java.util.List;
 
+@RequestMapping("api/v1/question")
 public class QuestionController {
 	private final QuestionService questionService;
 	
@@ -31,11 +28,14 @@ public class QuestionController {
 	}
 	
 	@PostMapping(path = "{categoryId}")
-	public ResponseEntity createQuestion(QuestionRequest request, @PathVariable("categoryId") Long categoryId) {
+	@PreAuthorize("hasAuthority('ROLE_admin')")
+	public ResponseEntity createQuestion(@RequestBody QuestionRequest request, @PathVariable("categoryId") Long categoryId) {
 		ResponseData response = new ResponseData<>(ServiceStatusCodes.ERROR, ServiceMessages.GENERAL_ERROR_MESSAGE);
 
 		try {
 			Question question = questionService.createQuestion(request, categoryId);
+			response.setStatus(ServiceStatusCodes.SUCCESS);
+			response.setMessage(ServiceMessages.SUCCESS_RESPONSE);
 			response.setData(question);
 			return ResponseEntity.ok().body(response);
 		} catch (DuplicateEntityException e) {
@@ -52,6 +52,8 @@ public class QuestionController {
 
 		try {
 			List<Question> questions = questionService.getAllQuestions();
+			response.setStatus(ServiceStatusCodes.SUCCESS);
+			response.setMessage(ServiceMessages.SUCCESS_RESPONSE);
 			response.setData(questions);
 			return ResponseEntity.ok().body(response);
 		} catch (Exception e) {
@@ -65,6 +67,8 @@ public class QuestionController {
 
 		try {
 			List<QuestionResponse> questions = questionService.getAllQuestionsByCategory(categoryId);
+			response.setStatus(ServiceStatusCodes.SUCCESS);
+			response.setMessage(ServiceMessages.SUCCESS_RESPONSE);
 			response.setData(questions);
 			return ResponseEntity.ok().body(response);
 		} catch (InvalidEntityException e) {
@@ -81,6 +85,8 @@ public class QuestionController {
 
 		try {
 			QuestionResponseFull question = questionService.getQuestion(questionId);
+			response.setStatus(ServiceStatusCodes.SUCCESS);
+			response.setMessage(ServiceMessages.SUCCESS_RESPONSE);
 			response.setData(question);
 			return ResponseEntity.ok().body(response);
 		} catch (InvalidEntityException e) {
@@ -92,11 +98,14 @@ public class QuestionController {
 	}
 	
 	@PutMapping(path = "{questionId}")
+	@PreAuthorize("hasAuthority('ROLE_admin')")
 	public ResponseEntity updateQuestion(@PathVariable("questionId") Long questionId, @RequestParam(required = false) String questionText) {
 		ResponseData response = new ResponseData<>(ServiceStatusCodes.ERROR, ServiceMessages.GENERAL_ERROR_MESSAGE);
 
 		try {
 			Question question = questionService.updateQuestion(questionId, questionText);
+			response.setStatus(ServiceStatusCodes.SUCCESS);
+			response.setMessage(ServiceMessages.SUCCESS_RESPONSE);
 			response.setData(question);
 			return ResponseEntity.ok().body(response);
 		} catch (InvalidEntityException e) {
@@ -111,11 +120,14 @@ public class QuestionController {
 	}
 	
 	@DeleteMapping(path = "{questionId}")
+	@PreAuthorize("hasAuthority('ROLE_admin')")
 	public ResponseEntity deleteQuestion(@PathVariable("questionId") Long questionId) {
 		ResponseData response = new ResponseData<>(ServiceStatusCodes.ERROR, ServiceMessages.GENERAL_ERROR_MESSAGE);
 
 		try {
 			questionService.deleteQuestion(questionId);
+			response.setStatus(ServiceStatusCodes.SUCCESS);
+			response.setMessage(ServiceMessages.SUCCESS_RESPONSE);
 			return ResponseEntity.ok().body(response);
 		} catch (InvalidEntityException e) {
 			response.setMessage(e.getMessage());

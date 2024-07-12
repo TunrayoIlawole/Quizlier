@@ -6,14 +6,16 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import com.quizlier.common.entity.Question;
 import com.quizlier.core.service.QuizService;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 
+@RequestMapping("api/v1/quiz")
 public class QuizController {
 	
 	@Autowired
 	private QuizService quizService;
 	
-	@GetMapping(path = "/quiz/{category}/next")
+	@GetMapping(path = "/{category}/next")
 	public Question getNextQuestion(@PathVariable String categoryId ) {
 		Long categoryIdLong = Long.valueOf(categoryId);
 		return quizService.getNextQuestion(categoryIdLong);
