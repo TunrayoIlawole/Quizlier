@@ -7,6 +7,7 @@ import java.util.function.Function;
 
 import javax.crypto.SecretKey;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -17,8 +18,10 @@ import io.jsonwebtoken.security.Keys;
 
 @Service
 public class JwtService {
-	// Todo: save this as a config to the database
-    public static final String SECRET = "5367566B59703373367639792F423F4528482B4D6251655468576D5A71347437";
+	@Value("${JWT_SECRET_KEY}")
+	private String jwtSecretKey;
+
+//    public static final String SECRET = jwtSecretKey;
     
     public String generateToken(String username) {
     	Map<String, Object> claims = new HashMap<>();
@@ -26,13 +29,6 @@ public class JwtService {
     }
     
     private String createToken(Map<String, Object> claims, String username) {
-//    	return Jwts.builder()
-//    			.setClaims(claims)
-//    			.setSubject(username)
-//    			.setIssuedAt(new Date(System.currentTimeMillis()))
-//    			.setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 30))
-//    			.signWith(getSignKey(), SecureDigestAlgorithm<Key, Key>c).compact();
-    	
     	return Jwts.builder().claims()
     			.add(claims)
     			.subject(username)
@@ -44,7 +40,7 @@ public class JwtService {
     }
     
     private SecretKey getSignKey() {
-    	byte[] keyBytes = Decoders.BASE64.decode(SECRET);
+    	byte[] keyBytes = Decoders.BASE64.decode(jwtSecretKey);
     	return Keys.hmacShaKeyFor(keyBytes);
     }
     
