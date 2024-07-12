@@ -38,7 +38,7 @@ public class SecurityConfig {
 		
 		return http.csrf(csrf -> csrf.disable())
 				.authorizeHttpRequests(auth -> auth
-						.requestMatchers("api/v1/auth/generateToken", "api/v1/auth/signup", "api/v1/auth/signin", "api/v1/auth/welcome").permitAll()
+						.requestMatchers("api/v1/auth/generateToken", "api/v1/auth/signup/*", "api/v1/auth/signin", "api/v1/auth/validateToken", "api/v1/auth/getUsername", "api/v1/auth/roles", "api/v1/auth/userdetails", "api/v1/auth/welcome", "core/core/api/v1/*", "auth/auth/api/v1/*").permitAll()
 						.requestMatchers("api/v1/auth/adminprofile", "api/v1/auth/playerprofile").authenticated()
 						)
 				.sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
