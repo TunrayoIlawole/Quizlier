@@ -20,8 +20,6 @@ public class JwtService {
     @Value("${JWT_SECRET_KEY}")
     private String jwtSecretKey;
 
-//    public static final String SECRET = "5367566B59703373367639792F423F4528482B4D6251655468576D5A71347437";
-
     public String generateToken(String username) {
         Map<String, Object> claims = new HashMap<>();
         return createToken(claims, username);

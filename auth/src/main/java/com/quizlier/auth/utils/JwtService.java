@@ -20,8 +20,6 @@ import io.jsonwebtoken.security.Keys;
 public class JwtService {
 	@Value("${JWT_SECRET_KEY}")
 	private String jwtSecretKey;
-
-//    public static final String SECRET = jwtSecretKey;
     
     public String generateToken(String username) {
     	Map<String, Object> claims = new HashMap<>();
