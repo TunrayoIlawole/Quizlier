@@ -25,6 +25,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     @Autowired
     AuthService authService;
 
+    @Autowired
+    UserSession userSession;
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         final String authHeader = request.getHeader("Authorization");
@@ -43,6 +46,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             boolean isValid = authService.validateToken(token);
 
             if (isValid) {
+                userSession.setUsername(username);
+                userSession.setHighest_score(authService.getHighestScore(username));
+
                 String userRole = authService.getUserRole(username);
 
                 List<GrantedAuthority> authorities = Stream.of(userRole)

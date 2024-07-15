@@ -1,8 +1,13 @@
 package com.quizlier.core.service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.quizlier.common.dto.AnswerSubmission;
+import com.quizlier.common.dto.UserScore;
+import com.quizlier.common.entity.Option;
+import com.quizlier.core.repository.OptionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.quizlier.common.entity.Question;
@@ -13,9 +18,18 @@ public class QuizService {
 	
 	@Autowired
 	private QuestionRepository questionRepository;
+
+	@Autowired
+	private OptionRepository optionRepository;
+
+	@Autowired
+	private QuestionService questionService;
 	
 	@Autowired
 	private UserSession userSession;
+
+	@Autowired
+	private AuthService authService;
 	
 	public void playGame(Long activeCategoryId) {
 		
@@ -41,6 +55,25 @@ public class QuizService {
 			return null;
 		}
 		
+	}
+
+	public UserScore submitAnswer(AnswerSubmission answerSubmission) {
+		Optional<Option> currentOption = optionRepository.findById(answerSubmission.getSelectedOption());
+
+		if (currentOption.isPresent() && currentOption.get().getIsCorrect() && currentOption.get().getQuestion().getId().equals(answerSubmission.getQuestionId())) {
+			userSession.incrementScore();
+		}
+
+		UserScore userScore = new UserScore();
+		userScore.setScore(userScore.getScore());
+
+		if (userSession.getScore() > userSession.getHighest_score()) {
+			userSession.setHighest_score(userSession.getScore());
+			authService.sendUserHighscore(userSession.getUsername(), String.valueOf(userSession.getScore()));
+		}
+
+		return userScore;
+
 	}
 	
 	

@@ -45,4 +45,21 @@ public class AuthService {
             return null;
         }
     }
+
+    public int getHighestScore(String username) {
+        try {
+            ResponseEntity<Integer> response = restTemplate.getForEntity(AUTH_URL + "/highscore?username=" + username, Integer.class);
+            return response.getBody() != null ? response.getBody() : 0;
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
+    public void sendUserHighscore(String username, String highScore) {
+        try {
+            restTemplate.postForEntity(AUTH_URL + "/highscore?username=" + username + "&score=" + highScore, null, String.class);
+        } catch (Exception e) {
+            throw e;
+        }
+    }
 }

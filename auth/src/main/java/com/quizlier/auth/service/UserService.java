@@ -101,4 +101,11 @@ public class UserService implements UserDetailsService {
 		return userByUsername.orElse(null);
 
 	}
+
+	public void updateHighscore(User user, String score) {
+
+		user.setHighest_score(Integer.valueOf(score));
+
+		userRepository.save(user);
+	}
 }

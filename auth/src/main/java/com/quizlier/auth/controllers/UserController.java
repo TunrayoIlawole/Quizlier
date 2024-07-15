@@ -166,6 +166,28 @@ public class UserController {
 			return ResponseEntity.notFound().build();
 		}
 	}
+
+	@GetMapping("/highscore")
+	public ResponseEntity<Integer> getHighScore(@RequestParam("username") String username) {
+		User user = userService.getUserByUsername(username);
+
+		if (user != null) {
+			int highestScore = user.getHighest_score();
+
+			return ResponseEntity.ok(highestScore);
+		} else {
+			return ResponseEntity.notFound().build();
+		}
+	}
+
+	@PostMapping("/highscore")
+	public void updateHighscore(@RequestParam("username") String username, @RequestParam("score") String score) {
+		User user = userService.getUserByUsername(username);
+
+		if (user != null) {
+			userService.updateHighscore(user, score);
+		}
+	}
 	
 //	public String authenticateAndGetToken(@RequestBody AuthRequest authRequest) {
 //		Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword()));
