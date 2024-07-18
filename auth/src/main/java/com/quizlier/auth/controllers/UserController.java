@@ -144,7 +144,7 @@ public class UserController {
 				response.setMessage("User authenticated successfully");
 				return ResponseEntity.ok().body(response);
 			} else {
-				throw new UsernameNotFoundException("Invalid user reques t!");
+				throw new UsernameNotFoundException("Invalid user request!");
 			}
 		} catch (UserNotFoundException | UsernameNotFoundException ex) {
 			response.setMessage(ex.getMessage());
