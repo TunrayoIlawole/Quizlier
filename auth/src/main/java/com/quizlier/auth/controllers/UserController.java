@@ -4,6 +4,7 @@ import com.quizlier.auth.exceptions.AuthenticationFailedException;
 import com.quizlier.auth.exceptions.DuplicateUserException;
 import com.quizlier.auth.exceptions.UserNotFoundException;
 import com.quizlier.auth.utils.UserInfoDetails;
+import com.quizlier.common.dto.*;
 import com.quizlier.common.entity.User;
 import com.quizlier.common.vo.ResponseData;
 import com.quizlier.common.vo.ServiceMessages;
@@ -22,9 +23,6 @@ import org.springframework.web.bind.annotation.*;
 
 import com.quizlier.auth.service.UserService;
 import com.quizlier.auth.utils.JwtService;
-import com.quizlier.common.dto.AuthRequest;
-import com.quizlier.common.dto.UserLoginRequest;
-import com.quizlier.common.dto.UserRequest;
 
 import java.util.List;
 
@@ -69,14 +67,22 @@ public class UserController {
 	}
 	
 	@PostMapping("/signup/player")
-	public ResponseEntity signUpPlayer(@RequestBody UserRequest userRequest) {
-		ResponseData<User> response = new ResponseData<>(ServiceStatusCodes.ERROR, ServiceMessages.GENERAL_ERROR_MESSAGE);
+	public ResponseEntity signUpPlayer(@RequestBody UserSignupRequest userRequest) {
+		ResponseData<UserSignupResponse> response = new ResponseData<>(ServiceStatusCodes.ERROR, ServiceMessages.GENERAL_ERROR_MESSAGE);
 		try {
 			User user = userService.createPlayerUser(userRequest, PLAYER);
 
+			UserSignupResponse userSignupResponse = new UserSignupResponse();
+			userSignupResponse.setEmail(user.getEmail());
+			userSignupResponse.setUsername(user.getUsername());
+			userSignupResponse.setFirstName(user.getFirstName());
+			userSignupResponse.setLastName(user.getLastName());
+			userSignupResponse.setId(user.getId().toString());
+			userSignupResponse.setUserRole(user.getUserRole().name());
+
 			response.setStatus(ServiceStatusCodes.SUCCESS);
 			response.setMessage(ServiceMessages.SUCCESS_RESPONSE);
-			response.setData(user);
+			response.setData(userSignupResponse);
 
 			return ResponseEntity.ok().body(response);
 		} catch (DuplicateUserException ex) {
@@ -88,14 +94,22 @@ public class UserController {
 	}
 
 	@PostMapping("/signup/admin")
-	public ResponseEntity signUpAdmin(@RequestBody UserRequest userRequest) {
-		ResponseData<User> response = new ResponseData<>(ServiceStatusCodes.ERROR, ServiceMessages.GENERAL_ERROR_MESSAGE);
+	public ResponseEntity signUpAdmin(@RequestBody UserSignupRequest userRequest) {
+		ResponseData<UserSignupResponse> response = new ResponseData<>(ServiceStatusCodes.ERROR, ServiceMessages.GENERAL_ERROR_MESSAGE);
 		try {
 			User user = userService.createPlayerUser(userRequest, ADMIN);
 
+			UserSignupResponse userSignupResponse = new UserSignupResponse();
+			userSignupResponse.setEmail(user.getEmail());
+			userSignupResponse.setUsername(user.getUsername());
+			userSignupResponse.setFirstName(user.getFirstName());
+			userSignupResponse.setLastName(user.getLastName());
+			userSignupResponse.setId(user.getId().toString());
+			userSignupResponse.setUserRole(user.getUserRole().name());
+
 			response.setStatus(ServiceStatusCodes.SUCCESS);
 			response.setMessage(ServiceMessages.SUCCESS_RESPONSE);
-			response.setData(user);
+			response.setData(userSignupResponse);
 
 			return ResponseEntity.ok().body(response);
 		} catch (DuplicateUserException ex) {
@@ -108,7 +122,7 @@ public class UserController {
 	
 	@PostMapping("/signin")
 	public ResponseEntity signIn(@RequestBody UserLoginRequest userLoginRequest) {
-		ResponseData response = new ResponseData<>(ServiceStatusCodes.ERROR, ServiceMessages.GENERAL_ERROR_MESSAGE);
+		ResponseData<UserloginResponse> response = new ResponseData<>(ServiceStatusCodes.ERROR, ServiceMessages.GENERAL_ERROR_MESSAGE);
 
 		try {
 			User user = userService.signInPlayer(userLoginRequest);
@@ -119,7 +133,14 @@ public class UserController {
 			Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword()));
 
 			if (authentication.isAuthenticated()) {
-				response.setData(jwtService.generateToken(authRequest.getUsername()));
+				String token = jwtService.generateToken(authRequest.getUsername());
+				UserloginResponse userloginResponse = new UserloginResponse();
+				userloginResponse.setEmail(user.getEmail());
+				userloginResponse.setUserId(user.getId().toString());
+				userloginResponse.setUsername(user.getUsername());
+				userloginResponse.setToken(token);
+
+				response.setData(userloginResponse);
 				response.setMessage("User authenticated successfully");
 				return ResponseEntity.ok().body(response);
 			} else {
