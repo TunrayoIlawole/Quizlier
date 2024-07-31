@@ -94,7 +94,7 @@ public class OptionController {
 		ResponseData response = new ResponseData<>(ServiceStatusCodes.ERROR, ServiceMessages.GENERAL_ERROR_MESSAGE);
 
 		try {
-			Option option = optionService.updateOption(optionId, optionRequest);
+			OptionResponse option = optionService.updateOption(optionId, optionRequest);
 
 			response.setData(option);
 			response.setStatus(ServiceStatusCodes.SUCCESS);
