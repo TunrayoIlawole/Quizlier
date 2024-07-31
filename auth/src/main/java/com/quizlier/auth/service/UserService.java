@@ -59,6 +59,7 @@ public class UserService implements UserDetailsService {
 		user.setLastName(userRequest.getLastName());
 		user.setPassword(encoder.encode(userRequest.getPassword()));
 		user.setUserRole(userRole);
+		user.setHighest_score(0);
 		
 		userRepository.save(user);
 		

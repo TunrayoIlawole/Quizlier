@@ -80,8 +80,6 @@ public class CategoryService {
         data.setId(category.get().getId());
         data.setName(category.get().getName());
         data.setDescription(category.get().getDescription());
-        data.setCreatedAt(category.get().getCreatedAt());
-        data.setUpdatedAt(category.get().getUpdatedAt());
 
         List<QuestionResponse> questionList = new ArrayList<>();
 
