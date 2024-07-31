@@ -9,6 +9,7 @@ import com.quizlier.common.vo.ServiceStatusCodes;
 import com.quizlier.core.exceptions.DuplicateEntityException;
 import com.quizlier.core.exceptions.InvalidEntityException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +19,7 @@ import com.quizlier.core.service.QuestionService;
 
 import java.util.List;
 
+@RestController
 @RequestMapping("api/v1/question")
 public class QuestionController {
 	private final QuestionService questionService;
@@ -33,14 +35,17 @@ public class QuestionController {
 		ResponseData response = new ResponseData<>(ServiceStatusCodes.ERROR, ServiceMessages.GENERAL_ERROR_MESSAGE);
 
 		try {
-			Question question = questionService.createQuestion(request, categoryId);
+			QuestionResponse question = questionService.createQuestion(request, categoryId);
 			response.setStatus(ServiceStatusCodes.SUCCESS);
 			response.setMessage(ServiceMessages.SUCCESS_RESPONSE);
 			response.setData(question);
 			return ResponseEntity.ok().body(response);
+		} catch (InvalidEntityException e) {
+			response.setMessage(e.getMessage());
+			return ResponseEntity.status(HttpStatusCode.valueOf(404)).body(response);
 		} catch (DuplicateEntityException e) {
 			response.setMessage(e.getMessage());
-			return ResponseEntity.badRequest().build();
+			return ResponseEntity.badRequest().body(response);
 		} catch (Exception e) {
 			return ResponseEntity.internalServerError().body(e.getMessage());
 		}
@@ -61,23 +66,23 @@ public class QuestionController {
 		}
 	}
 
-	@GetMapping(path = "{categoryId}")
-	public ResponseEntity getAllQuestionsByCategory(@PathVariable("categoryId") Long categoryId) {
-		ResponseData response = new ResponseData<>(ServiceStatusCodes.ERROR, ServiceMessages.GENERAL_ERROR_MESSAGE);
-
-		try {
-			List<QuestionResponse> questions = questionService.getAllQuestionsByCategory(categoryId);
-			response.setStatus(ServiceStatusCodes.SUCCESS);
-			response.setMessage(ServiceMessages.SUCCESS_RESPONSE);
-			response.setData(questions);
-			return ResponseEntity.ok().body(response);
-		} catch (InvalidEntityException e) {
-			response.setMessage(e.getMessage());
-			return ResponseEntity.notFound().build();
-		} catch (Exception e) {
-			return ResponseEntity.internalServerError().body(e.getMessage());
-		}
-	}
+//	@GetMapping(path = "{categoryId}")
+//	public ResponseEntity getAllQuestionsByCategory(@PathVariable("categoryId") Long categoryId) {
+//		ResponseData response = new ResponseData<>(ServiceStatusCodes.ERROR, ServiceMessages.GENERAL_ERROR_MESSAGE);
+//
+//		try {
+//			List<QuestionResponse> questions = questionService.getAllQuestionsByCategory(categoryId);
+//			response.setStatus(ServiceStatusCodes.SUCCESS);
+//			response.setMessage(ServiceMessages.SUCCESS_RESPONSE);
+//			response.setData(questions);
+//			return ResponseEntity.ok().body(response);
+//		} catch (InvalidEntityException e) {
+//			response.setMessage(e.getMessage());
+//			return ResponseEntity.notFound().build();
+//		} catch (Exception e) {
+//			return ResponseEntity.internalServerError().body(e.getMessage());
+//		}
+//	}
 	
 	@GetMapping(path = "{questionId}")
 	public ResponseEntity getQuestion(@PathVariable("questionId") Long questionId) {
@@ -91,7 +96,7 @@ public class QuestionController {
 			return ResponseEntity.ok().body(response);
 		} catch (InvalidEntityException e) {
 			response.setMessage(e.getMessage());
-			return ResponseEntity.notFound().build();
+			return ResponseEntity.status(HttpStatusCode.valueOf(404)).body(response);
 		} catch (Exception e) {
 			return ResponseEntity.internalServerError().body(e.getMessage());
 		}
@@ -99,21 +104,21 @@ public class QuestionController {
 	
 	@PutMapping(path = "{questionId}")
 	@PreAuthorize("hasAuthority('ROLE_admin')")
-	public ResponseEntity updateQuestion(@PathVariable("questionId") Long questionId, @RequestParam(required = false) String questionText) {
+	public ResponseEntity updateQuestion(@PathVariable("questionId") Long questionId, @RequestBody QuestionRequest questionRequest) {
 		ResponseData response = new ResponseData<>(ServiceStatusCodes.ERROR, ServiceMessages.GENERAL_ERROR_MESSAGE);
 
 		try {
-			Question question = questionService.updateQuestion(questionId, questionText);
+			QuestionResponse question = questionService.updateQuestion(questionId, questionRequest);
 			response.setStatus(ServiceStatusCodes.SUCCESS);
 			response.setMessage(ServiceMessages.SUCCESS_RESPONSE);
 			response.setData(question);
 			return ResponseEntity.ok().body(response);
 		} catch (InvalidEntityException e) {
 			response.setMessage(e.getMessage());
-			return ResponseEntity.notFound().build();
+			return ResponseEntity.status(HttpStatusCode.valueOf(404)).body(response);
 		} catch (DuplicateEntityException e) {
 			response.setMessage(e.getMessage());
-			return ResponseEntity.badRequest().build();
+			return ResponseEntity.badRequest().body(response);
 		}  catch (Exception e) {
 			return ResponseEntity.internalServerError().body(e.getMessage());
 		}
@@ -131,7 +136,7 @@ public class QuestionController {
 			return ResponseEntity.ok().body(response);
 		} catch (InvalidEntityException e) {
 			response.setMessage(e.getMessage());
-			return ResponseEntity.notFound().build();
+			return ResponseEntity.status(HttpStatusCode.valueOf(404)).body(response);
 		}  catch (Exception e) {
 			return ResponseEntity.internalServerError().body(e.getMessage());
 		}
