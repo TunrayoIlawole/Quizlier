@@ -6,16 +6,14 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import com.quizlier.common.dto.*;
+import com.quizlier.common.entity.Option;
 import com.quizlier.core.exceptions.DuplicateEntityException;
 import com.quizlier.core.exceptions.InvalidEntityException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import com.quizlier.common.dto.CategoryRequest;
-import com.quizlier.common.dto.CategoryResponse;
-import com.quizlier.common.dto.CategoryResponseFull;
-import com.quizlier.common.dto.QuestionResponse;
 import com.quizlier.common.entity.Category;
 import com.quizlier.common.entity.Question;
 import com.quizlier.common.vo.ResponseData;
@@ -34,7 +32,7 @@ public class CategoryService {
 	private QuestionRepository questionRepository;
 	
 	
-	public Category createCategory(CategoryRequest request) throws DuplicateEntityException {
+	public CategoryResponse createCategory(CategoryRequest request) throws DuplicateEntityException {
 			Optional<Category> categoryByName = categoryRepository.findCategoryByName(request.getName());
 			
 			if (categoryByName.isPresent()) {
@@ -44,10 +42,14 @@ public class CategoryService {
 			category.setName(request.getName());
 			category.setDescription(request.getDescription());
 			category.setCreatedAt(Calendar.getInstance().getTime());
-			
 			categoryRepository.save(category);
+
+			CategoryResponse categoryResponse = new CategoryResponse();
+			categoryResponse.setId(category.getId());
+			categoryResponse.setName(request.getName());
+			categoryResponse.setDescription(request.getDescription());
 			
-			return category;
+			return categoryResponse;
 	}
 	
 	public List<CategoryResponse> getAllCategories() throws Exception {
@@ -60,8 +62,6 @@ public class CategoryService {
             data.setId(category.getId());
             data.setName(category.getName());
             data.setDescription(category.getDescription());
-            data.setCreatedAt(category.getCreatedAt());
-            data.setUpdatedAt(category.getUpdatedAt());
 
             responseList.add(data);
         });
@@ -91,8 +91,6 @@ public class CategoryService {
             QuestionResponse questionResponse = new QuestionResponse();
             questionResponse.setId(question.getId());
             questionResponse.setQuestion(question.getQuestion());
-            questionResponse.setCreatedAt(question.getCreatedAt());
-            questionResponse.setUpdatedAt(question.getUpdatedAt());
 
             questionList.add(questionResponse);
         });
@@ -103,27 +101,34 @@ public class CategoryService {
 
     }
 	
-	public Category updateCategory(Long categoryId, String name, String description) throws InvalidEntityException, DuplicateEntityException {
-			Optional<Category> category = categoryRepository.findById(categoryId);
+	public CategoryResponse updateCategory(Long categoryId, CategoryRequest categoryRequest) throws InvalidEntityException, DuplicateEntityException {
+		System.out.println("line 104 - works");
+		Optional<Category> category = categoryRepository.findById(categoryId);
 		
 			if (category.isEmpty()) {
 				throw new InvalidEntityException(String.format("Category with id %s does not exist", categoryId));
 			}
 			
-			if (name != null && name.length() > 0 && !Objects.equals(category.get().getName(), name)) {
-				category.get().setDescription(description);
+			if (!categoryRequest.getDescription().isEmpty() && !Objects.equals(category.get().getDescription(), categoryRequest.getDescription())) {
+				System.out.println("line 111 - works");
+				category.get().setDescription(categoryRequest.getDescription());
 			}
 			
-			if (description != null && description.length() > 0 && !Objects.equals(category.get().getDescription(), description)) {
-				Optional<Category> categoryByName = categoryRepository.findCategoryByName(name);
+			if (!categoryRequest.getName().isEmpty() && !Objects.equals(category.get().getName(), categoryRequest.getName())) {
+				Optional<Category> categoryByName = categoryRepository.findCategoryByName(categoryRequest.getName());
 				if (categoryByName.isPresent()) {
-					throw new DuplicateEntityException(String.format("Category name %s already taken", name));
+					throw new DuplicateEntityException(String.format("Category name %s already taken", categoryRequest.getName()));
 				}
-				category.get().setName(name);
+				category.get().setName(categoryRequest.getName());
 			}
 			categoryRepository.save(category.get());
+
+			CategoryResponse categoryResponse = new CategoryResponse();
+			categoryResponse.setId(category.get().getId());
+			categoryResponse.setName(categoryRequest.getName());
+			categoryResponse.setDescription(categoryRequest.getDescription());
 			
-			return category.get();
+			return categoryResponse;
 	}
 	
 	public void deleteCategory(Long categoryId) throws InvalidEntityException {

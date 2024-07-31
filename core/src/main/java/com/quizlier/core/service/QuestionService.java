@@ -38,7 +38,7 @@ public class QuestionService {
 	@Autowired
 	private OptionRepository optionRepository;
 	
-	public Question createQuestion(QuestionRequest request, Long categoryId) throws InvalidEntityException, DuplicateEntityException {
+	public QuestionResponse createQuestion(QuestionRequest request, Long categoryId) throws InvalidEntityException, DuplicateEntityException {
 			Optional<Category> category = categoryRepository.findById(categoryId);
 			
 			if (category.isEmpty()) {
@@ -55,10 +55,14 @@ public class QuestionService {
 			question.setQuestion(request.getQuestion());
 			question.setCategory(category.get());
 			question.setCreatedAt(Calendar.getInstance().getTime());
-			
 			questionRepository.save(question);
+
+			QuestionResponse questionResponse = new QuestionResponse();
+			questionResponse.setId(question.getId());
+			questionResponse.setQuestion(request.getQuestion());
+			questionResponse.setCategoryId(categoryId);
 			
-			return question;
+			return questionResponse;
 	}
 	
 	public List<Question> getAllQuestions() {
@@ -82,8 +86,6 @@ public class QuestionService {
 		    	QuestionResponse questionResponse = new QuestionResponse();
 		    	questionResponse.setId(question.getId());
 		    	questionResponse.setQuestion(question.getQuestion());
-		    	questionResponse.setCreatedAt(question.getCreatedAt());
-		    	questionResponse.setUpdatedAt(question.getUpdatedAt());
 		    	
 		    	responseList.add(questionResponse);
 		    });
@@ -102,8 +104,6 @@ public class QuestionService {
 			
 			data.setId(question.get().getId());
 			data.setQuestion(question.get().getQuestion());
-			data.setCreatedAt(question.get().getCreatedAt());
-			data.setUpdatedAt(question.get().getUpdatedAt());
 			
 			List<OptionResponse> optionList = new ArrayList<>();
 			
@@ -113,9 +113,8 @@ public class QuestionService {
 				OptionResponse optionResponse = new OptionResponse();
 				optionResponse.setId(option.getId());
 				optionResponse.setOptionText(option.getOption_text());
-				optionResponse.setCorrect(option.getIsCorrect());
-				optionResponse.setCreatedAt(option.getCreatedAt());
-				optionResponse.setUpdatedAt(option.getUpdatedAt());
+				optionResponse.setIsCorrect(option.getIsCorrect());
+				optionResponse.setQuestionId(questionId);
 				
 				optionList.add(optionResponse);
 			});
@@ -125,25 +124,30 @@ public class QuestionService {
 			return data;
 	}
 	
-	public Question updateQuestion(Long questionId, String questionText) throws InvalidEntityException, DuplicateEntityException {
+	public QuestionResponse updateQuestion(Long questionId, QuestionRequest questionRequest) throws InvalidEntityException, DuplicateEntityException {
 			Optional<Question> question = questionRepository.findById(questionId);
 		
 			if (question.isEmpty()) {
 				throw new InvalidEntityException(String.format("Question with id %s does not exist", questionId));
 			}
 			
-			if (questionText != null && questionText.length() > 0 && !Objects.equals(question.get().getQuestion(), questionText)) {
-				Optional<Question> existingQuestion = questionRepository.getQuestion(questionText);
+			if (questionRequest.getQuestion() != null && !Objects.equals(question.get().getQuestion(), questionRequest.getQuestion())) {
+				Optional<Question> existingQuestion = questionRepository.getQuestion(questionRequest.getQuestion());
 				if (existingQuestion.isPresent()) {
-					throw new DuplicateEntityException(String.format("Question text %s already taken", questionText));
+					throw new DuplicateEntityException(String.format("Question text %s already taken", questionRequest.getQuestion()));
 				}
-				question.get().setQuestion(questionText);
+				question.get().setQuestion(questionRequest.getQuestion());
 			}
 
 			question.get().setUpdatedAt(Calendar.getInstance().getTime());
 			questionRepository.save(question.get());
+
+			QuestionResponse questionResponse = new QuestionResponse();
+			questionResponse.setId(questionId);
+			questionResponse.setQuestion(questionRequest.getQuestion());
+			questionResponse.setCategoryId(question.get().getCategory().getId());
 			
-			return question.get();
+			return questionResponse;
 	}
 	
 	public void deleteQuestion(Long questionId) throws InvalidEntityException {
