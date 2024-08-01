@@ -28,6 +28,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("api/v1/auth")
+@CrossOrigin(origins = "http://localhost:4200")
 public class UserController {
 
 	public static String PLAYER = "player";
@@ -140,6 +141,7 @@ public class UserController {
 				userloginResponse.setUsername(user.getUsername());
 				userloginResponse.setToken(token);
 
+				response.setStatus(ServiceStatusCodes.SUCCESS);
 				response.setData(userloginResponse);
 				response.setMessage("User authenticated successfully");
 				return ResponseEntity.ok().body(response);
