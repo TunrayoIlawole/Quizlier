@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import com.quizlier.common.dto.OptionRequest;
 import com.quizlier.core.service.OptionService;
 
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -39,7 +40,7 @@ public class OptionController {
 			response.setStatus(ServiceStatusCodes.SUCCESS);
 			response.setMessage(ServiceMessages.SUCCESS_RESPONSE);
 			response.setData(option);
-			return ResponseEntity.ok().body(response);
+			return ResponseEntity.created(URI.create("/api/v1/option/" + option.getId())).body(response);
 		} catch (DuplicateEntityException | MaximumEntityException e) {
 			response.setMessage(e.getMessage());
 			return ResponseEntity.status(HttpStatusCode.valueOf(400)).body(response);

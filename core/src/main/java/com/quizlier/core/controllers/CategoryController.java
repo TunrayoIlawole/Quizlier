@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import com.quizlier.common.dto.CategoryRequest;
 import com.quizlier.core.service.CategoryService;
 
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -41,7 +42,7 @@ public class CategoryController {
 
 			response.setStatus(ServiceStatusCodes.SUCCESS);
 			response.setMessage(ServiceMessages.SUCCESS_RESPONSE);
-			return ResponseEntity.ok().body(response);
+			return ResponseEntity.created(URI.create("/api/v1/category/" + category.getId())).body(response);
 		} catch (DuplicateEntityException ex) {
 			response.setMessage(ex.getMessage());
 			return ResponseEntity.badRequest().body(response);

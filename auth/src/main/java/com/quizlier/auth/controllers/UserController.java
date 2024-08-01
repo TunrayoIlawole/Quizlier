@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 import com.quizlier.auth.service.UserService;
 import com.quizlier.auth.utils.JwtService;
 
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -112,7 +113,7 @@ public class UserController {
 			response.setMessage(ServiceMessages.SUCCESS_RESPONSE);
 			response.setData(userSignupResponse);
 
-			return ResponseEntity.ok().body(response);
+			return ResponseEntity.created(URI.create("")).body(response);
 		} catch (DuplicateUserException ex) {
 			response.setMessage(ex.getMessage());
 			return ResponseEntity.badRequest().body(response);

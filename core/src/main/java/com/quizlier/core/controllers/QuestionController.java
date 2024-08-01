@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import com.quizlier.common.dto.QuestionRequest;
 import com.quizlier.core.service.QuestionService;
 
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -39,7 +40,7 @@ public class QuestionController {
 			response.setStatus(ServiceStatusCodes.SUCCESS);
 			response.setMessage(ServiceMessages.SUCCESS_RESPONSE);
 			response.setData(question);
-			return ResponseEntity.ok().body(response);
+			return ResponseEntity.created(URI.create("/api/v1/question/" + question.getId())).body(response);
 		} catch (InvalidEntityException e) {
 			response.setMessage(e.getMessage());
 			return ResponseEntity.status(HttpStatusCode.valueOf(404)).body(response);
