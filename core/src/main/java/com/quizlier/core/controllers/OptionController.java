@@ -7,7 +7,9 @@ import com.quizlier.common.vo.ServiceMessages;
 import com.quizlier.common.vo.ServiceStatusCodes;
 import com.quizlier.core.exceptions.DuplicateEntityException;
 import com.quizlier.core.exceptions.InvalidEntityException;
+import com.quizlier.core.exceptions.MaximumEntityException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -15,8 +17,10 @@ import org.springframework.web.bind.annotation.*;
 import com.quizlier.common.dto.OptionRequest;
 import com.quizlier.core.service.OptionService;
 
+import java.net.URI;
 import java.util.List;
 
+@RestController
 @RequestMapping("api/v1/option")
 public class OptionController {
 	private final OptionService optionService;
@@ -32,17 +36,17 @@ public class OptionController {
 		ResponseData response = new ResponseData<>(ServiceStatusCodes.ERROR, ServiceMessages.GENERAL_ERROR_MESSAGE);
 
 		try {
-			Option option = optionService.createOption(request, questionId);
+			OptionResponse option = optionService.createOption(request, questionId);
 			response.setStatus(ServiceStatusCodes.SUCCESS);
 			response.setMessage(ServiceMessages.SUCCESS_RESPONSE);
 			response.setData(option);
-			return ResponseEntity.ok().body(response);
-		} catch (DuplicateEntityException e) {
+			return ResponseEntity.created(URI.create("/api/v1/option/" + option.getId())).body(response);
+		} catch (DuplicateEntityException | MaximumEntityException e) {
 			response.setMessage(e.getMessage());
-			return ResponseEntity.badRequest().build();
+			return ResponseEntity.status(HttpStatusCode.valueOf(400)).body(response);
 		} catch (InvalidEntityException e) {
 			response.setMessage(e.getMessage());
-			return ResponseEntity.notFound().build();
+			return ResponseEntity.status(HttpStatusCode.valueOf(404)).body(response);
 		} catch (Exception e) {
 			return ResponseEntity.internalServerError().body(e.getMessage());
 		}
@@ -61,7 +65,7 @@ public class OptionController {
 			return ResponseEntity.ok().body(response);
 		} catch (InvalidEntityException e) {
 			response.setMessage(e.getMessage());
-			return ResponseEntity.notFound().build();
+			return ResponseEntity.status(HttpStatusCode.valueOf(404)).body(response);
 		} catch (Exception e) {
 			return ResponseEntity.internalServerError().body(e.getMessage());
 		}
@@ -79,7 +83,7 @@ public class OptionController {
 			return ResponseEntity.ok().body(response);
 		} catch (InvalidEntityException e) {
 			response.setMessage(e.getMessage());
-			return ResponseEntity.notFound().build();
+			return ResponseEntity.status(HttpStatusCode.valueOf(404)).body(response);
 		} catch (Exception e) {
 			return ResponseEntity.internalServerError().body(e.getMessage());
 		}
@@ -87,11 +91,11 @@ public class OptionController {
 	
 	@PutMapping(path = "{optionId}")
 	@PreAuthorize("hasAuthority('ROLE_admin')")
-	public ResponseEntity updateOption(@PathVariable("optionId") Long optionId, @RequestParam(required = false) String optionText, @RequestParam(required = false) Boolean isCorrect) {
+	public ResponseEntity updateOption(@PathVariable("optionId") Long optionId, @RequestBody OptionRequest optionRequest) {
 		ResponseData response = new ResponseData<>(ServiceStatusCodes.ERROR, ServiceMessages.GENERAL_ERROR_MESSAGE);
 
 		try {
-			Option option = optionService.updateOption(optionId, optionText, isCorrect);
+			OptionResponse option = optionService.updateOption(optionId, optionRequest);
 
 			response.setData(option);
 			response.setStatus(ServiceStatusCodes.SUCCESS);
@@ -99,7 +103,7 @@ public class OptionController {
 			return ResponseEntity.ok().body(response);
 		} catch (InvalidEntityException e) {
 			response.setMessage(e.getMessage());
-			return ResponseEntity.notFound().build();
+			return ResponseEntity.status(HttpStatusCode.valueOf(404)).body(response);
 		} catch (Exception e) {
 			return ResponseEntity.internalServerError().body(e.getMessage());
 		}
