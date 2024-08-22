@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class QuizController {
 	private final QuizService quizService;
 	
-	@GetMapping(path = "/{category}/next")
+	@GetMapping(path = "/{categoryId}/next")
 	public Question getNextQuestion(@PathVariable String categoryId ) {
 		Long categoryIdLong = Long.valueOf(categoryId);
 		return quizService.getNextQuestion(categoryIdLong);

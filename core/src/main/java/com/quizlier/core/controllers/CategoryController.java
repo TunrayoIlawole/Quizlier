@@ -63,7 +63,7 @@ public class CategoryController {
 	}
 	
 	@GetMapping(path = "{categoryId}")
-	public ResponseEntity getCategory(@PathVariable("categoryId") Long categoryId) {
+	public ResponseEntity getCategory(@PathVariable Long categoryId) {
 		ResponseData response = new ResponseData<>(ServiceStatusCodes.ERROR, ServiceMessages.GENERAL_ERROR_MESSAGE);
 
 		try {
@@ -83,7 +83,7 @@ public class CategoryController {
 	
 	@DeleteMapping(path = "{categoryId}")
 	@PreAuthorize("hasAuthority('ROLE_admin')")
-	public ResponseEntity deleteCategory(@PathVariable("categoryId") Long categoryId) {
+	public ResponseEntity deleteCategory(@PathVariable Long categoryId) {
 		ResponseData response = new ResponseData<>(ServiceStatusCodes.ERROR, ServiceMessages.GENERAL_ERROR_MESSAGE);
 
 		try {
@@ -101,7 +101,7 @@ public class CategoryController {
 	
 	@PutMapping(path = "{categoryId}")
 	@PreAuthorize("hasAuthority('ROLE_admin')")
-	public ResponseEntity updateCategory(@PathVariable("categoryId") Long categoryId, @RequestBody CategoryRequest categoryRequest) {
+	public ResponseEntity updateCategory(@PathVariable Long categoryId, @RequestBody CategoryRequest categoryRequest) {
 		ResponseData response = new ResponseData<>(ServiceStatusCodes.ERROR, ServiceMessages.GENERAL_ERROR_MESSAGE);
 
 		try {

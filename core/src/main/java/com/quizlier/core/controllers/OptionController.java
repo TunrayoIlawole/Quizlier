@@ -27,7 +27,7 @@ public class OptionController {
 	
 	@PostMapping(path = "{questionId}")
 	@PreAuthorize("hasAuthority('ROLE_admin')")
-	public ResponseEntity createOption(@RequestBody OptionRequest request, @PathVariable("questionId") Long questionId) {
+	public ResponseEntity createOption(@RequestBody OptionRequest request, @PathVariable Long questionId) {
 		ResponseData response = new ResponseData<>(ServiceStatusCodes.ERROR, ServiceMessages.GENERAL_ERROR_MESSAGE);
 
 		try {
@@ -48,7 +48,7 @@ public class OptionController {
 	}
 	
 	@GetMapping(path = "{questionId}")
-	public ResponseEntity getAllOptions(@PathVariable("questionId") Long questionId) {
+	public ResponseEntity getAllOptions(@PathVariable Long questionId) {
 		ResponseData response = new ResponseData<>(ServiceStatusCodes.ERROR, ServiceMessages.GENERAL_ERROR_MESSAGE);
 
 		try {
@@ -68,7 +68,7 @@ public class OptionController {
 	
 	@DeleteMapping(path = "{optionId}")
 	@PreAuthorize("hasAuthority('ROLE_admin')")
-	public ResponseEntity deleteOption(@PathVariable("optionId") Long optionId) {
+	public ResponseEntity deleteOption(@PathVariable Long optionId) {
 		ResponseData response = new ResponseData<>(ServiceStatusCodes.ERROR, ServiceMessages.GENERAL_ERROR_MESSAGE);
 
 		try {
@@ -86,7 +86,7 @@ public class OptionController {
 	
 	@PutMapping(path = "{optionId}")
 	@PreAuthorize("hasAuthority('ROLE_admin')")
-	public ResponseEntity updateOption(@PathVariable("optionId") Long optionId, @RequestBody OptionRequest optionRequest) {
+	public ResponseEntity updateOption(@PathVariable Long optionId, @RequestBody OptionRequest optionRequest) {
 		ResponseData response = new ResponseData<>(ServiceStatusCodes.ERROR, ServiceMessages.GENERAL_ERROR_MESSAGE);
 
 		try {

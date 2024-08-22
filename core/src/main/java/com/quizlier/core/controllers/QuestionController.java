@@ -88,7 +88,7 @@ public class QuestionController {
 //	}
 	
 	@GetMapping(path = "{questionId}")
-	public ResponseEntity getQuestion(@PathVariable("questionId") Long questionId) {
+	public ResponseEntity getQuestion(@PathVariable Long questionId) {
 		ResponseData response = new ResponseData<>(ServiceStatusCodes.ERROR, ServiceMessages.GENERAL_ERROR_MESSAGE);
 
 		try {
@@ -107,7 +107,7 @@ public class QuestionController {
 	
 	@PutMapping(path = "{questionId}")
 	@PreAuthorize("hasAuthority('ROLE_admin')")
-	public ResponseEntity updateQuestion(@PathVariable("questionId") Long questionId, @RequestBody QuestionRequest questionRequest) {
+	public ResponseEntity updateQuestion(@PathVariable Long questionId, @RequestBody QuestionRequest questionRequest) {
 		ResponseData response = new ResponseData<>(ServiceStatusCodes.ERROR, ServiceMessages.GENERAL_ERROR_MESSAGE);
 
 		try {
@@ -129,7 +129,7 @@ public class QuestionController {
 	
 	@DeleteMapping(path = "{questionId}")
 	@PreAuthorize("hasAuthority('ROLE_admin')")
-	public ResponseEntity deleteQuestion(@PathVariable("questionId") Long questionId) {
+	public ResponseEntity deleteQuestion(@PathVariable Long questionId) {
 		ResponseData response = new ResponseData<>(ServiceStatusCodes.ERROR, ServiceMessages.GENERAL_ERROR_MESSAGE);
 
 		try {
