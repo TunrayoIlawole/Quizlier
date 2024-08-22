@@ -9,6 +9,7 @@ import com.quizlier.common.vo.ServiceMessages;
 import com.quizlier.common.vo.ServiceStatusCodes;
 import com.quizlier.core.exceptions.DuplicateEntityException;
 import com.quizlier.core.exceptions.InvalidEntityException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
@@ -22,15 +23,11 @@ import java.net.URI;
 import java.util.List;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("api/v1/category")
 public class CategoryController {
 	
 	private final CategoryService categoryService;
-	
-	@Autowired
-	public CategoryController(CategoryService categoryService) {
-		this.categoryService = categoryService;
-	}
 
 	@PostMapping
 	@PreAuthorize("hasAuthority('ROLE_admin')")
@@ -42,7 +39,7 @@ public class CategoryController {
 
 			response.setStatus(ServiceStatusCodes.SUCCESS);
 			response.setMessage(ServiceMessages.SUCCESS_RESPONSE);
-			return ResponseEntity.created(URI.create("/api/v1/category/" + category.getId())).body(response);
+			return ResponseEntity.ok(response);
 		} catch (DuplicateEntityException ex) {
 			response.setMessage(ex.getMessage());
 			return ResponseEntity.badRequest().body(response);

@@ -8,6 +8,7 @@ import com.quizlier.common.vo.ServiceStatusCodes;
 import com.quizlier.core.exceptions.DuplicateEntityException;
 import com.quizlier.core.exceptions.InvalidEntityException;
 import com.quizlier.core.exceptions.MaximumEntityException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
@@ -21,14 +22,10 @@ import java.net.URI;
 import java.util.List;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("api/v1/option")
 public class OptionController {
 	private final OptionService optionService;
-	
-	@Autowired
-	public OptionController(OptionService optionService) {
-		this.optionService = optionService;
-	}
 	
 	@PostMapping(path = "{questionId}")
 	@PreAuthorize("hasAuthority('ROLE_admin')")
@@ -40,7 +37,7 @@ public class OptionController {
 			response.setStatus(ServiceStatusCodes.SUCCESS);
 			response.setMessage(ServiceMessages.SUCCESS_RESPONSE);
 			response.setData(option);
-			return ResponseEntity.created(URI.create("/api/v1/option/" + option.getId())).body(response);
+			return ResponseEntity.ok(response);
 		} catch (DuplicateEntityException | MaximumEntityException e) {
 			response.setMessage(e.getMessage());
 			return ResponseEntity.status(HttpStatusCode.valueOf(400)).body(response);

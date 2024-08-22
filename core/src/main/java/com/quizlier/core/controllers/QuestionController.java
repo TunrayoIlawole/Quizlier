@@ -2,6 +2,7 @@ package com.quizlier.core.controllers;
 
 import java.util.List;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
@@ -27,14 +28,10 @@ import com.quizlier.core.exceptions.InvalidEntityException;
 import com.quizlier.core.service.QuestionService;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("api/v1/question")
 public class QuestionController {
 	private final QuestionService questionService;
-	
-	@Autowired
-	public QuestionController(QuestionService questionService) {
-		this.questionService = questionService;
-	}
 	
 	@PostMapping(path = "{categoryId}")
 	@PreAuthorize("hasAuthority('ROLE_admin')")

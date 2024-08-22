@@ -1,5 +1,6 @@
 package com.quizlier.core.controllers;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -10,10 +11,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 
 @RequestMapping("api/v1/quiz")
+@RequiredArgsConstructor
 public class QuizController {
-	
-	@Autowired
-	private QuizService quizService;
+	private final QuizService quizService;
 	
 	@GetMapping(path = "/{category}/next")
 	public Question getNextQuestion(@PathVariable String categoryId ) {
