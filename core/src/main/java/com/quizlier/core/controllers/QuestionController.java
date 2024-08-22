@@ -1,5 +1,21 @@
 package com.quizlier.core.controllers;
 
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.quizlier.common.dto.QuestionRequest;
 import com.quizlier.common.dto.QuestionResponse;
 import com.quizlier.common.dto.QuestionResponseFull;
 import com.quizlier.common.entity.Question;
@@ -8,17 +24,7 @@ import com.quizlier.common.vo.ServiceMessages;
 import com.quizlier.common.vo.ServiceStatusCodes;
 import com.quizlier.core.exceptions.DuplicateEntityException;
 import com.quizlier.core.exceptions.InvalidEntityException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatusCode;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
-
-import com.quizlier.common.dto.QuestionRequest;
 import com.quizlier.core.service.QuestionService;
-
-import java.net.URI;
-import java.util.List;
 
 @RestController
 @RequestMapping("api/v1/question")

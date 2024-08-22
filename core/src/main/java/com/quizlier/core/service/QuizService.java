@@ -7,10 +7,8 @@ import java.util.stream.Collectors;
 import com.quizlier.common.dto.AnswerSubmission;
 import com.quizlier.common.dto.UserScore;
 import com.quizlier.common.entity.Option;
-import com.quizlier.core.repository.OptionRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.quizlier.common.entity.Question;
+import com.quizlier.core.repository.OptionRepository;
 import com.quizlier.core.repository.QuestionRepository;
 import com.quizlier.core.util.UserSession;
 

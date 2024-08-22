@@ -1,0 +1,37 @@
+spring:
+  main:
+    allow-circular-references: true
+  application:
+    name: auth
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+  jpa:
+    hibernate.ddl-auto: update
+    properties:
+      hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
+      hibernate.format_sql: false
+      hibernate.show_sql : false
+      hibernate.jdbc.lob.non_contextual_creation : true
+    hibernate.naming:
+      implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyJpaImpl
+      physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    flyway:
+      enabled: true
+      url: ${SPRING_DATASOURCE_URL}
+      password: ${SPRING_DATASOURCE_PASSWORD}
+      user: ${SPRING_DATASOURCE_USERNAME}
+      schemas: migrations
+    
+server:
+  port: 8052
+  servlet:
+    context-path: /auth
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/eureka
+  instance:
+    preferIpAddress: true

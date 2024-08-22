@@ -6,11 +6,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-import com.quizlier.core.exceptions.DuplicateEntityException;
-import com.quizlier.core.exceptions.InvalidEntityException;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.quizlier.common.dto.OptionResponse;
@@ -20,9 +15,13 @@ import com.quizlier.common.dto.QuestionResponseFull;
 import com.quizlier.common.entity.Category;
 import com.quizlier.common.entity.Option;
 import com.quizlier.common.entity.Question;
+import com.quizlier.core.exceptions.DuplicateEntityException;
+import com.quizlier.core.exceptions.InvalidEntityException;
 import com.quizlier.core.repository.CategoryRepository;
 import com.quizlier.core.repository.OptionRepository;
 import com.quizlier.core.repository.QuestionRepository;
+
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
