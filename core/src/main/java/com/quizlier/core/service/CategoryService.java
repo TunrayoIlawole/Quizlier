@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,13 +25,12 @@ import com.quizlier.core.repository.CategoryRepository;
 import com.quizlier.core.repository.QuestionRepository;
 
 @Service
+@RequiredArgsConstructor
 public class CategoryService {
-	
-	@Autowired
-	private CategoryRepository categoryRepository;
-	
-	@Autowired
-	private QuestionRepository questionRepository;
+
+	private final CategoryRepository categoryRepository;
+
+	private final QuestionRepository questionRepository;
 	
 	
 	public CategoryResponse createCategory(CategoryRequest request) throws DuplicateEntityException {
