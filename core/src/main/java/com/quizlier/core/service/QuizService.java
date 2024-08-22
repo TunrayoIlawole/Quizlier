@@ -7,38 +7,41 @@ import java.util.stream.Collectors;
 import com.quizlier.common.dto.AnswerSubmission;
 import com.quizlier.common.dto.UserScore;
 import com.quizlier.common.entity.Option;
-import com.quizlier.core.repository.OptionRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.quizlier.common.entity.Question;
+import com.quizlier.core.repository.OptionRepository;
 import com.quizlier.core.repository.QuestionRepository;
 import com.quizlier.core.util.UserSession;
 
 public class QuizService {
-	
-	@Autowired
-	private QuestionRepository questionRepository;
 
-	@Autowired
+	private QuestionRepository questionRepository;
 	private OptionRepository optionRepository;
 
-	@Autowired
 	private QuestionService questionService;
-	
-	@Autowired
+
 	private UserSession userSession;
 
-	@Autowired
 	private AuthService authService;
-	
-	public void playGame(Long activeCategoryId) {
-		
-		// Create game log record
-		
+
+	public QuizService(QuestionRepository questionRepository, OptionRepository optionRepository,
+					   QuestionService questionService, UserSession userSession, AuthService authService) {
+		this.questionRepository = questionRepository;
+		this.optionRepository = optionRepository;
+		this.questionService = questionService;
+		this.userSession = userSession;
+		this.authService = authService;
 	}
+
+	
+//	public void playGame(Long activeCategoryId) {
+//
+//		// Create game log record
+//
+//	}
 		
 	public Question getNextQuestion(Long activeCategory) {
-		
+
+		// question service
 		List<Question> questionsByCategory = questionRepository.getQuestionsForCategory(activeCategory);
 		
 		List<Question> availableQuestions = questionsByCategory.stream().filter(question -> 

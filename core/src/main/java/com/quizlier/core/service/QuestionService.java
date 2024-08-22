@@ -6,15 +6,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-import com.quizlier.core.exceptions.DuplicateEntityException;
-import com.quizlier.core.exceptions.InvalidEntityException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import com.quizlier.common.vo.ResponseData;
-import com.quizlier.common.vo.ServiceMessages;
-import com.quizlier.common.vo.ServiceStatusCodes;
 import com.quizlier.common.dto.OptionResponse;
 import com.quizlier.common.dto.QuestionRequest;
 import com.quizlier.common.dto.QuestionResponse;
@@ -22,22 +15,24 @@ import com.quizlier.common.dto.QuestionResponseFull;
 import com.quizlier.common.entity.Category;
 import com.quizlier.common.entity.Option;
 import com.quizlier.common.entity.Question;
+import com.quizlier.core.exceptions.DuplicateEntityException;
+import com.quizlier.core.exceptions.InvalidEntityException;
 import com.quizlier.core.repository.CategoryRepository;
 import com.quizlier.core.repository.OptionRepository;
 import com.quizlier.core.repository.QuestionRepository;
 
+import lombok.RequiredArgsConstructor;
+
 @Service
+@RequiredArgsConstructor
 public class QuestionService {
-	
-	@Autowired
-	private QuestionRepository questionRepository;
-	
-	@Autowired
-	private CategoryRepository categoryRepository;
-	
-	@Autowired
-	private OptionRepository optionRepository;
-	
+	private final QuestionRepository questionRepository;
+
+	private final CategoryRepository categoryRepository;
+
+	private final OptionRepository optionRepository;
+
+
 	public QuestionResponse createQuestion(QuestionRequest request, Long categoryId) throws InvalidEntityException, DuplicateEntityException {
 			Optional<Category> category = categoryRepository.findById(categoryId);
 			
