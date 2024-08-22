@@ -2,15 +2,12 @@ package com.quizlier.core.controllers;
 
 import com.quizlier.common.dto.CategoryResponse;
 import com.quizlier.common.dto.CategoryResponseFull;
-import com.quizlier.common.dto.QuestionRequest;
-import com.quizlier.common.entity.Category;
 import com.quizlier.common.vo.ResponseData;
 import com.quizlier.common.vo.ServiceMessages;
 import com.quizlier.common.vo.ServiceStatusCodes;
 import com.quizlier.core.exceptions.DuplicateEntityException;
 import com.quizlier.core.exceptions.InvalidEntityException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;

@@ -1,7 +1,6 @@
 package com.quizlier.core.controllers;
 
 import com.quizlier.common.dto.OptionResponse;
-import com.quizlier.common.entity.Option;
 import com.quizlier.common.vo.ResponseData;
 import com.quizlier.common.vo.ServiceMessages;
 import com.quizlier.common.vo.ServiceStatusCodes;
@@ -9,7 +8,6 @@ import com.quizlier.core.exceptions.DuplicateEntityException;
 import com.quizlier.core.exceptions.InvalidEntityException;
 import com.quizlier.core.exceptions.MaximumEntityException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
