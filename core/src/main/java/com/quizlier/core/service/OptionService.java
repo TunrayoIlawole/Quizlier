@@ -8,6 +8,7 @@ import java.util.Optional;
 
 import com.quizlier.core.exceptions.DuplicateEntityException;
 import com.quizlier.core.exceptions.InvalidEntityException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -23,13 +24,12 @@ import com.quizlier.core.repository.OptionRepository;
 import com.quizlier.core.repository.QuestionRepository;
 
 @Service
+@RequiredArgsConstructor
 public class OptionService {
-	
-	@Autowired
-	private OptionRepository optionRepository;
-	
-	@Autowired
-	private QuestionRepository questionRepository;
+
+	private final OptionRepository optionRepository;
+
+	private final QuestionRepository questionRepository;
 	
 	public Option createOption(OptionRequest request, Long questionId) throws InvalidEntityException, DuplicateEntityException {
 		try {
@@ -54,7 +54,7 @@ public class OptionService {
 				Option option = new Option();
 				
 				option.setOption_text(request.getOptionText());
-				option.setIsCorrect(request.isCorrect());
+				option.setIsCorrect(request.getIsCorrect());
 				option.setCreatedAt(Calendar.getInstance().getTime());
 				option.setQuestion(question.get());
 				
@@ -87,9 +87,7 @@ public class OptionService {
 		    	OptionResponse optionResponse = new OptionResponse();
 		    	optionResponse.setId(option.getId());
 		    	optionResponse.setOptionText(option.getOption_text());
-		    	optionResponse.setCorrect(option.getIsCorrect());
-		    	optionResponse.setCreatedAt(option.getCreatedAt());
-		    	optionResponse.setUpdatedAt(option.getUpdatedAt());
+		    	optionResponse.setIsCorrect(option.getIsCorrect());
 		    	
 		    	responseList.add(optionResponse);
 		    });

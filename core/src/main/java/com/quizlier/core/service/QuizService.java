@@ -11,34 +11,22 @@ import com.quizlier.common.entity.Question;
 import com.quizlier.core.repository.OptionRepository;
 import com.quizlier.core.repository.QuestionRepository;
 import com.quizlier.core.util.UserSession;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
+@Service
+@RequiredArgsConstructor
 public class QuizService {
 
-	private QuestionRepository questionRepository;
-	private OptionRepository optionRepository;
+	private final QuestionRepository questionRepository;
+	private final OptionRepository optionRepository;
 
-	private QuestionService questionService;
+	private final QuestionService questionService;
 
-	private UserSession userSession;
+	private final UserSession userSession;
 
-	private AuthService authService;
+	private final AuthService authService;
 
-	public QuizService(QuestionRepository questionRepository, OptionRepository optionRepository,
-					   QuestionService questionService, UserSession userSession, AuthService authService) {
-		this.questionRepository = questionRepository;
-		this.optionRepository = optionRepository;
-		this.questionService = questionService;
-		this.userSession = userSession;
-		this.authService = authService;
-	}
-
-	
-//	public void playGame(Long activeCategoryId) {
-//
-//		// Create game log record
-//
-//	}
-		
 	public Question getNextQuestion(Long activeCategory) {
 
 		// question service
