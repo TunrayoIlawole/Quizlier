@@ -2,6 +2,7 @@ package com.quizlier.core.controllers;
 
 import com.quizlier.common.dto.CategoryResponse;
 import com.quizlier.common.dto.CategoryResponseFull;
+import com.quizlier.common.dto.QuestionRequest;
 import com.quizlier.common.entity.Category;
 import com.quizlier.common.vo.ResponseData;
 import com.quizlier.common.vo.ServiceMessages;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import com.quizlier.common.dto.CategoryRequest;
 import com.quizlier.core.service.CategoryService;
 
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -35,14 +37,12 @@ public class CategoryController {
 	public ResponseEntity createCategory(@RequestBody CategoryRequest request) {
 		ResponseData response = new ResponseData<>(ServiceStatusCodes.ERROR, ServiceMessages.GENERAL_ERROR_MESSAGE);
 		try {
-			System.out.println(request.getName());
-			System.out.println(request.getDescription());
-			Category category = categoryService.createCategory(request);
+			CategoryResponse category = categoryService.createCategory(request);
 			response.setData(category);
 
 			response.setStatus(ServiceStatusCodes.SUCCESS);
 			response.setMessage(ServiceMessages.SUCCESS_RESPONSE);
-			return ResponseEntity.ok().body(response);
+			return ResponseEntity.created(URI.create("/api/v1/category/" + category.getId())).body(response);
 		} catch (DuplicateEntityException ex) {
 			response.setMessage(ex.getMessage());
 			return ResponseEntity.badRequest().body(response);
@@ -80,7 +80,7 @@ public class CategoryController {
 			return ResponseEntity.ok().body(response);
 		} catch (InvalidEntityException e) {
 			response.setMessage(e.getMessage());
-			return ResponseEntity.notFound().build();
+			return ResponseEntity.status(HttpStatusCode.valueOf(404)).body(response);
 		}
 		catch (Exception e) {
 			return ResponseEntity.internalServerError().body(e.getMessage());
@@ -99,7 +99,7 @@ public class CategoryController {
 			return ResponseEntity.ok().body(response);
 		} catch (InvalidEntityException e) {
 			response.setMessage(e.getMessage());
-			return ResponseEntity.notFound().build();
+			return ResponseEntity.status(HttpStatusCode.valueOf(404)).body(response);
 		} catch (Exception e) {
 			return ResponseEntity.internalServerError().body(e.getMessage());
 		}
@@ -107,21 +107,21 @@ public class CategoryController {
 	
 	@PutMapping(path = "{categoryId}")
 	@PreAuthorize("hasAuthority('ROLE_admin')")
-	public ResponseEntity updateCategory(@PathVariable("categoryId") Long categoryId, @RequestParam(required = false) String name, @RequestParam(required = false) String description) {
+	public ResponseEntity updateCategory(@PathVariable("categoryId") Long categoryId, @RequestBody CategoryRequest categoryRequest) {
 		ResponseData response = new ResponseData<>(ServiceStatusCodes.ERROR, ServiceMessages.GENERAL_ERROR_MESSAGE);
 
 		try {
-			Category category = categoryService.updateCategory(categoryId, name, description);
+			CategoryResponse category = categoryService.updateCategory(categoryId, categoryRequest);
 			response.setStatus(ServiceStatusCodes.SUCCESS);
 			response.setMessage(ServiceMessages.SUCCESS_RESPONSE);
 			response.setData(category);
 			return ResponseEntity.ok().body(response);
 		} catch (InvalidEntityException e) {
 			response.setMessage(e.getMessage());
-			return ResponseEntity.notFound().build();
+			return ResponseEntity.status(HttpStatusCode.valueOf(404)).body(response);
 		} catch (DuplicateEntityException e) {
 			response.setMessage(e.getMessage());
-			return ResponseEntity.badRequest().build();
+			return ResponseEntity.badRequest().body(response);
 		} catch (Exception e) {
 			return ResponseEntity.internalServerError().body(e.getMessage());
 		}

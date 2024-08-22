@@ -4,10 +4,11 @@ common/data/*
 .settings*
 core/data/postgres/*
 .idea
-eureka-server/mvnw
-eureka-server/.mvn/wrapper/maven-wrapper.properties
 eureka-server/mvnw.cmd
+eureka-server/.mvn/wrapper/maven-wrapper.properties
+eureka-server/mvnw
 core/docker-compose.yml
 auth/docker-compose.yml
-.project
 core/.env
+.project
+eureka-server/HELP.md

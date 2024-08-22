@@ -8,6 +8,7 @@ import java.util.Optional;
 
 import com.quizlier.core.exceptions.DuplicateEntityException;
 import com.quizlier.core.exceptions.InvalidEntityException;
+import com.quizlier.core.exceptions.MaximumEntityException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -31,8 +32,9 @@ public class OptionService {
 	@Autowired
 	private QuestionRepository questionRepository;
 	
-	public Option createOption(OptionRequest request, Long questionId) throws InvalidEntityException, DuplicateEntityException {
+	public OptionResponse createOption(OptionRequest request, Long questionId) throws InvalidEntityException, DuplicateEntityException, MaximumEntityException {
 		try {
+
 			Optional<Question> question = questionRepository.findById(questionId);
 			
 			if (question.isEmpty()) {
@@ -42,6 +44,10 @@ public class OptionService {
 			Option existingOption = null;
 			
 			List<Option> options = optionRepository.getOptionsForQuestions(questionId);
+
+			if (options.size() > 3) {
+				throw new MaximumEntityException("Maximum number of options for question exceeded");
+			}
 			
 			for (Option option : options) {
 				if (option.getOption_text().equals(request.getOptionText())) {
@@ -50,17 +56,32 @@ public class OptionService {
 				}
 			}
 			
-			if (existingOption == null || !existingOption.getQuestion().equals(question.get())) {
+			if (existingOption == null) {
+				if (request.getIsCorrect()) {
+					Optional<Option> correctAnswer = options.stream().filter(Option::getIsCorrect).findFirst();
+
+					// If there is already an option set as the correct answer
+					if (correctAnswer.isPresent()) {
+						correctAnswer.get().setIsCorrect(false);
+						optionRepository.save(correctAnswer.get());
+					}
+				}
 				Option option = new Option();
 				
 				option.setOption_text(request.getOptionText());
-				option.setIsCorrect(request.isCorrect());
+				option.setIsCorrect(request.getIsCorrect());
 				option.setCreatedAt(Calendar.getInstance().getTime());
 				option.setQuestion(question.get());
 				
 				optionRepository.save(option);
 
-				return option;
+				OptionResponse optionResponse = new OptionResponse();
+				optionResponse.setId(option.getId());
+				optionResponse.setQuestionId(questionId);
+				optionResponse.setOptionText(request.getOptionText());
+				optionResponse.setIsCorrect(request.getIsCorrect());
+
+				return optionResponse;
 			} else {
 				throw new DuplicateEntityException("Option already exists for this question");
 			}
@@ -80,6 +101,12 @@ public class OptionService {
 			}
 
 			List<Option> options = optionRepository.getOptionsForQuestions(questionId);
+
+			boolean correctAnswer = options.stream().anyMatch(Option::getIsCorrect);
+
+			if (!correctAnswer) {
+				throw new InvalidEntityException(String.format("Question %s does not have a correct answer set", questionId));
+			}
 			
 		    List<OptionResponse> responseList = new ArrayList<>();
 
@@ -87,9 +114,7 @@ public class OptionService {
 		    	OptionResponse optionResponse = new OptionResponse();
 		    	optionResponse.setId(option.getId());
 		    	optionResponse.setOptionText(option.getOption_text());
-		    	optionResponse.setCorrect(option.getIsCorrect());
-		    	optionResponse.setCreatedAt(option.getCreatedAt());
-		    	optionResponse.setUpdatedAt(option.getUpdatedAt());
+		    	optionResponse.setIsCorrect(option.getIsCorrect());
 		    	
 		    	responseList.add(optionResponse);
 		    });
@@ -101,40 +126,57 @@ public class OptionService {
 		}
 	}
 	
-	public Option updateOption(Long optionId, String optionText, Boolean isCorrect) throws InvalidEntityException {
+	public OptionResponse updateOption(Long optionId, OptionRequest optionRequest) throws InvalidEntityException, DuplicateEntityException {
 		try {
 			Optional<Option> optionById = optionRepository.findById(optionId);
 		
 			if (optionById.isEmpty()) {
 				throw new InvalidEntityException(String.format("Option with id %s does not exist", optionId));
 			}
-			
-			if (isCorrect != null) {
-				optionById.get().setIsCorrect(isCorrect);
+			Question question = optionById.get().getQuestion();
+
+			if (optionRequest.getIsCorrect()) {
+				List<Option> optionsByQuestions = optionRepository.getOptionsForQuestions(question.getId());
+
+				Optional<Option> correctAnswer = optionsByQuestions.stream().filter(Option::getIsCorrect).findFirst();
+
+				// If there is already an option set as the correct answer and it is not equal to the option that is being edited to be the correct answer:
+				if (correctAnswer.isPresent() && !Objects.equals(correctAnswer.get().getId(), optionId)) {
+					correctAnswer.get().setIsCorrect(false);
+					optionRepository.save(correctAnswer.get());
+				}
 			}
+
+			optionById.get().setIsCorrect(optionRequest.getIsCorrect());
 			
-			if (optionText != null) {
+			if (optionRequest.getOptionText() != null) {
 				Option existingOption = null;
 				
 				List<Option> options = optionRepository.getOptionsForQuestions(optionById.get().getQuestion().getId());
 
 				for (Option option : options) {
-					if (option.getOption_text().equals(optionText)) {
+					if (option.getOption_text().equals(optionRequest.getOptionText())) {
 						existingOption = option;
 						break;
 					}
 				}
 				
-				if (existingOption == null || (existingOption != null && !Objects.equals(existingOption.getQuestion(), optionById.get().getQuestion()) || (existingOption != null && Objects.equals(existingOption.getId(), optionById.get().getId())))) {
-					optionById.get().setOption_text(optionText);
+				if (existingOption != null) {
+					throw new DuplicateEntityException("Option already exists for this question");
 				}
+				optionById.get().setOption_text(optionRequest.getOptionText());
 			}
 			
-			optionById.get().setCreatedAt(Calendar.getInstance().getTime());
+			optionById.get().setUpdatedAt(Calendar.getInstance().getTime());
 			optionRepository.save(optionById.get());
-			
-			return optionById.get();
-			
+
+			OptionResponse optionResponse = new OptionResponse();
+			optionResponse.setId(optionById.get().getId());
+			optionResponse.setQuestionId(question.getId());
+			optionResponse.setOptionText(optionRequest.getOptionText());
+			optionResponse.setIsCorrect(optionRequest.getIsCorrect());
+
+			return optionResponse;
 		} catch (Exception e) {
 			throw e;
 

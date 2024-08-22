@@ -1,7 +1,10 @@
 package com.quizlier.core.util;
 
+import org.springframework.stereotype.Service;
+
 import java.util.HashSet;
 
+@Service
 public class UserSession {
 
 	private String username;

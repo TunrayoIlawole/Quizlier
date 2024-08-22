@@ -5,6 +5,7 @@ import java.util.Optional;
 import com.quizlier.auth.exceptions.AuthenticationFailedException;
 import com.quizlier.auth.exceptions.DuplicateUserException;
 import com.quizlier.auth.exceptions.UserNotFoundException;
+import com.quizlier.common.dto.UserSignupRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -15,7 +16,6 @@ import org.springframework.stereotype.Service;
 import com.quizlier.auth.repository.UserRepository;
 import com.quizlier.auth.utils.UserInfoDetails;
 import com.quizlier.common.dto.UserLoginRequest;
-import com.quizlier.common.dto.UserRequest;
 import com.quizlier.common.entity.User;
 import com.quizlier.common.entity.UserRole;
 import com.quizlier.common.vo.ResponseData;
@@ -37,7 +37,7 @@ public class UserService implements UserDetailsService {
 //		this.passwordEncryption = passwordEncryption;
 //	}
 	
-	public User createPlayerUser(UserRequest userRequest, String role) throws DuplicateUserException {
+	public User createPlayerUser(UserSignupRequest userRequest, String role) throws DuplicateUserException {
 		try {
 		Optional<User> userByEmail = userRepository.findUserByEmail(userRequest.getEmail());
 		
@@ -59,6 +59,7 @@ public class UserService implements UserDetailsService {
 		user.setLastName(userRequest.getLastName());
 		user.setPassword(encoder.encode(userRequest.getPassword()));
 		user.setUserRole(userRole);
+		user.setHighest_score(0);
 		
 		userRepository.save(user);
 		
