@@ -3,3 +3,12 @@ common/data/*
 .DS_Store
 .settings*
 core/data/postgres/*
+.idea
+eureka-server/mvnw.cmd
+eureka-server/.mvn/wrapper/maven-wrapper.properties
+eureka-server/mvnw
+core/docker-compose.yml
+auth/docker-compose.yml
+core/.env
+.project
+eureka-server/HELP.md
