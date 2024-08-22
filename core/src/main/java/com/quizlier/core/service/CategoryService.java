@@ -36,7 +36,7 @@ public class CategoryService {
 			Optional<Category> categoryByName = categoryRepository.findCategoryByName(request.getName());
 			
 			if (categoryByName.isPresent()) {
-				throw new DuplicateEntityException(String.format("Category with name %s already exists", request.getName()));
+				throw new DuplicateEntityException(ServiceMessages.duplicateEntity("Category"));
 			}
 			Category category = new Category();
 			category.setName(request.getName());
@@ -72,7 +72,7 @@ public class CategoryService {
         Optional<Category> category = categoryRepository.findById(categoryId);
 
         if (category.isEmpty()) {
-            throw new InvalidEntityException(String.format("Category with id %s does not exist", categoryId));
+            throw new InvalidEntityException(ServiceMessages.invalidEntity("Category", categoryId.toString()));
         }
 
         CategoryResponseFull data = new CategoryResponseFull();
@@ -105,18 +105,17 @@ public class CategoryService {
 		Optional<Category> category = categoryRepository.findById(categoryId);
 		
 			if (category.isEmpty()) {
-				throw new InvalidEntityException(String.format("Category with id %s does not exist", categoryId));
+				throw new InvalidEntityException(ServiceMessages.invalidEntity("Category", categoryId.toString()));
 			}
 			
 			if (!categoryRequest.getDescription().isEmpty() && !Objects.equals(category.get().getDescription(), categoryRequest.getDescription())) {
-				System.out.println("line 111 - works");
 				category.get().setDescription(categoryRequest.getDescription());
 			}
 			
 			if (!categoryRequest.getName().isEmpty() && !Objects.equals(category.get().getName(), categoryRequest.getName())) {
 				Optional<Category> categoryByName = categoryRepository.findCategoryByName(categoryRequest.getName());
 				if (categoryByName.isPresent()) {
-					throw new DuplicateEntityException(String.format("Category name %s already taken", categoryRequest.getName()));
+					throw new DuplicateEntityException(ServiceMessages.duplicateEntity("Category"));
 				}
 				category.get().setName(categoryRequest.getName());
 			}
@@ -136,7 +135,7 @@ public class CategoryService {
 		boolean exists = categoryRepository.existsById(categoryId);
 		
 		if (!exists) {
-			throw new InvalidEntityException(String.format("Category with id %s does not exist", categoryId));
+			throw new InvalidEntityException(ServiceMessages.invalidEntity("Category", categoryId.toString()));
 		}
 		categoryRepository.deleteById(categoryId);
 	}

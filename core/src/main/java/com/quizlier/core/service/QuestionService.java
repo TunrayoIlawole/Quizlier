@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import com.quizlier.common.vo.ServiceMessages;
 import org.springframework.stereotype.Service;
 
 import com.quizlier.common.dto.OptionResponse;
@@ -37,13 +38,13 @@ public class QuestionService {
 			Optional<Category> category = categoryRepository.findById(categoryId);
 			
 			if (category.isEmpty()) {
-				throw new InvalidEntityException(String.format("Question with id %s does not exist", categoryId));
+				throw new InvalidEntityException(ServiceMessages.invalidEntity("Category", categoryId.toString()));
 			}
 			
 			Optional<Question> existingQuestion = questionRepository.getQuestion(request.getQuestion());
 			
 			if (existingQuestion.isPresent()) {
-				throw new DuplicateEntityException("Question already exists");
+				throw new DuplicateEntityException(ServiceMessages.duplicateEntity("Question"));
 			}
 			
 			Question question = new Question();
@@ -70,7 +71,7 @@ public class QuestionService {
 			Optional<Category> category = categoryRepository.findById(categoryId);
 			
 			if (category.isEmpty()) {
-				throw new InvalidEntityException(String.format("Category with id %s does not exist", categoryId));
+				throw new InvalidEntityException(ServiceMessages.invalidEntity("Category", categoryId.toString()));
 			}
 
 			List<Question> questions = questionRepository.getQuestionsForCategory(categoryId);
@@ -92,7 +93,7 @@ public class QuestionService {
 			Optional<Question> question = questionRepository.findById(questionId);
 			
 			if (question.isEmpty()) {
-				throw new InvalidEntityException(String.format("Question with id %s does not exist", questionId));
+				throw new InvalidEntityException(ServiceMessages.invalidEntity("Question", questionId.toString()));
 			}
 			
 			QuestionResponseFull data = new QuestionResponseFull();
@@ -123,13 +124,13 @@ public class QuestionService {
 			Optional<Question> question = questionRepository.findById(questionId);
 		
 			if (question.isEmpty()) {
-				throw new InvalidEntityException(String.format("Question with id %s does not exist", questionId));
+				throw new InvalidEntityException(ServiceMessages.invalidEntity("Question", questionId.toString()));
 			}
 			
 			if (questionRequest.getQuestion() != null && !Objects.equals(question.get().getQuestion(), questionRequest.getQuestion())) {
 				Optional<Question> existingQuestion = questionRepository.getQuestion(questionRequest.getQuestion());
 				if (existingQuestion.isPresent()) {
-					throw new DuplicateEntityException(String.format("Question text %s already taken", questionRequest.getQuestion()));
+					throw new DuplicateEntityException(ServiceMessages.duplicateEntity("Question text"));
 				}
 				question.get().setQuestion(questionRequest.getQuestion());
 			}
@@ -149,7 +150,7 @@ public class QuestionService {
 		boolean exists = questionRepository.existsById(questionId);
 		
 		if (!exists) {
-			throw new InvalidEntityException(String.format("Question with id %s does not exist", questionId));
+			throw new InvalidEntityException(ServiceMessages.invalidEntity("Question", questionId.toString()));
 		}
 		questionRepository.deleteById(questionId);
 

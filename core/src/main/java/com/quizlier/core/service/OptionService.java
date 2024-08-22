@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import com.quizlier.common.vo.ServiceMessages;
 import org.springframework.stereotype.Service;
 
 import com.quizlier.common.dto.OptionRequest;
@@ -34,7 +35,7 @@ public class OptionService {
 			Optional<Question> question = questionRepository.findById(questionId);
 			
 			if (question.isEmpty()) {
-				throw new InvalidEntityException(String.format("Question with id %s does not exist", questionId));
+				throw new InvalidEntityException(ServiceMessages.invalidEntity("question", questionId.toString()));
 			}
 			
 			Option existingOption = null;
@@ -42,7 +43,7 @@ public class OptionService {
 			List<Option> options = optionRepository.getOptionsForQuestions(questionId);
 
 			if (options.size() > 3) {
-				throw new MaximumEntityException("Maximum number of options for question exceeded");
+				throw new MaximumEntityException(ServiceMessages.MAXIMUM_OPTIONS);
 			}
 			
 			for (Option option : options) {
@@ -79,7 +80,7 @@ public class OptionService {
 
 				return optionResponse;
 			} else {
-				throw new DuplicateEntityException("Option already exists for this question");
+				throw new DuplicateEntityException(ServiceMessages.DUPLICATE_OPTIONS);
 			}
 
 		} catch (Exception e) {
@@ -93,7 +94,7 @@ public class OptionService {
 			Optional<Question> question = questionRepository.findById(questionId);
 			
 			if (question.isEmpty()) {
-				throw new InvalidEntityException(String.format("Question with id %s does not exist", questionId));
+				throw new InvalidEntityException(ServiceMessages.invalidEntity("question", questionId.toString()));
 			}
 
 			List<Option> options = optionRepository.getOptionsForQuestions(questionId);
@@ -101,7 +102,7 @@ public class OptionService {
 			boolean correctAnswer = options.stream().anyMatch(Option::getIsCorrect);
 
 			if (!correctAnswer) {
-				throw new InvalidEntityException(String.format("Question %s does not have a correct answer set", questionId));
+				throw new InvalidEntityException(ServiceMessages.NO_CORRECT_ANSWER);
 			}
 			
 		    List<OptionResponse> responseList = new ArrayList<>();
@@ -127,7 +128,7 @@ public class OptionService {
 			Optional<Option> optionById = optionRepository.findById(optionId);
 		
 			if (optionById.isEmpty()) {
-				throw new InvalidEntityException(String.format("Option with id %s does not exist", optionId));
+				throw new InvalidEntityException(ServiceMessages.invalidEntity("Option", optionId.toString()));
 			}
 			Question question = optionById.get().getQuestion();
 
@@ -158,7 +159,7 @@ public class OptionService {
 				}
 				
 				if (existingOption != null) {
-					throw new DuplicateEntityException("Option already exists for this question");
+					throw new DuplicateEntityException(ServiceMessages.DUPLICATE_OPTIONS);
 				}
 				optionById.get().setOption_text(optionRequest.getOptionText());
 			}
@@ -183,7 +184,7 @@ public class OptionService {
 		boolean exists = optionRepository.existsById(optionId);
 		
 		if (!exists) {
-			throw new InvalidEntityException(String.format("Option with id %s does not exist", optionId));
+			throw new InvalidEntityException(ServiceMessages.invalidEntity("option", optionId.toString()));
 		}
 		optionRepository.deleteById(optionId);
 	}
