@@ -1,6 +1,6 @@
 package com.quizlier.core.exceptions;
 
-public class DuplicateEntityException extends Exception {
+public class DuplicateEntityException extends RuntimeException {
     public DuplicateEntityException(String message) {
         super(message);
     }
