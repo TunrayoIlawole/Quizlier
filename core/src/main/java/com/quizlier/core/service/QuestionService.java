@@ -18,8 +18,7 @@ import com.quizlier.common.entity.Option;
 import com.quizlier.common.entity.Question;
 import com.quizlier.core.exceptions.DuplicateEntityException;
 import com.quizlier.core.exceptions.InvalidEntityException;
-import com.quizlier.core.repository.CategoryRepository;
-import com.quizlier.core.repository.OptionRepository;
+
 import com.quizlier.core.repository.QuestionRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -29,15 +28,15 @@ import lombok.RequiredArgsConstructor;
 public class QuestionService {
 	private final QuestionRepository questionRepository;
 
-	private final CategoryRepository categoryRepository;
+	private final CategoryService categoryService;
 
-	private final OptionRepository optionRepository;
+	private final OptionService optionService;
 
 
 	public QuestionResponse createQuestion(QuestionRequest request, Long categoryId) throws InvalidEntityException, DuplicateEntityException {
-			Optional<Category> category = categoryRepository.findById(categoryId);
+			Category category = categoryService.getSingleCategory(categoryId);
 			
-			if (category.isEmpty()) {
+			if (category == null) {
 				throw new InvalidEntityException(ServiceMessages.invalidEntity("Category", categoryId.toString()));
 			}
 			
@@ -49,7 +48,7 @@ public class QuestionService {
 			
 			Question question = new Question();
 			question.setQuestion(request.getQuestion());
-			question.setCategory(category.get());
+			question.setCategory(category);
 			question.setCreatedAt(Calendar.getInstance().getTime());
 			questionRepository.save(question);
 
@@ -68,25 +67,25 @@ public class QuestionService {
 	}
 	
 	public List<QuestionResponse> getAllQuestionsByCategory(Long categoryId) throws InvalidEntityException {
-			Optional<Category> category = categoryRepository.findById(categoryId);
-			
-			if (category.isEmpty()) {
-				throw new InvalidEntityException(ServiceMessages.invalidEntity("Category", categoryId.toString()));
-			}
+		Category category = categoryService.getSingleCategory(categoryId);
 
-			List<Question> questions = questionRepository.getQuestionsForCategory(categoryId);
-			
-		    List<QuestionResponse> responseList = new ArrayList<>();
+		if (category == null) {
+			throw new InvalidEntityException(ServiceMessages.invalidEntity("Category", categoryId.toString()));
+		}
 
-		    questions.forEach(question -> {
-		    	QuestionResponse questionResponse = new QuestionResponse();
-		    	questionResponse.setId(question.getId());
-		    	questionResponse.setQuestion(question.getQuestion());
-		    	
-		    	responseList.add(questionResponse);
-		    });
-			
-			return responseList;
+		List<Question> questions = questionRepository.getQuestionsForCategory(categoryId);
+
+		List<QuestionResponse> responseList = new ArrayList<>();
+
+		questions.forEach(question -> {
+			QuestionResponse questionResponse = new QuestionResponse();
+			questionResponse.setId(question.getId());
+			questionResponse.setQuestion(question.getQuestion());
+
+			responseList.add(questionResponse);
+		});
+
+		return responseList;
 	}
 	
 	public QuestionResponseFull getQuestion(Long questionId) throws InvalidEntityException {
@@ -103,7 +102,7 @@ public class QuestionService {
 			
 			List<OptionResponse> optionList = new ArrayList<>();
 			
-			List<Option> optionsByQuestion = optionRepository.getOptionsForQuestions(questionId);
+			List<Option> optionsByQuestion = optionService.getOptions(questionId);
 			
 			optionsByQuestion.forEach(option -> {
 				OptionResponse optionResponse = new OptionResponse();
@@ -154,6 +153,18 @@ public class QuestionService {
 		}
 		questionRepository.deleteById(questionId);
 
+	}
+
+	public List<Question> getQuestionsForCategory(Long categoryId) {
+		List<Question> questionsByCategory = questionRepository.getQuestionsForCategory(categoryId);
+
+		return questionsByCategory;
+	}
+
+	public Question getSingleQuestion(Long id) {
+		Optional<Question> question = questionRepository.findById(id);
+
+		return question.orElse(null);
 	}
 
 }

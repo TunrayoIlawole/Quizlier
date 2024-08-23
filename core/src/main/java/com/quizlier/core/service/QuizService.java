@@ -8,8 +8,7 @@ import com.quizlier.common.dto.AnswerSubmission;
 import com.quizlier.common.dto.UserScore;
 import com.quizlier.common.entity.Option;
 import com.quizlier.common.entity.Question;
-import com.quizlier.core.repository.OptionRepository;
-import com.quizlier.core.repository.QuestionRepository;
+
 import com.quizlier.core.util.UserSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,9 +16,7 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class QuizService {
-
-	private final QuestionRepository questionRepository;
-	private final OptionRepository optionRepository;
+	private final OptionService optionService;
 
 	private final QuestionService questionService;
 
@@ -29,8 +26,7 @@ public class QuizService {
 
 	public Question getNextQuestion(Long activeCategory) {
 
-		// question service
-		List<Question> questionsByCategory = questionRepository.getQuestionsForCategory(activeCategory);
+		List<Question> questionsByCategory = questionService.getQuestionsForCategory(activeCategory);
 		
 		List<Question> availableQuestions = questionsByCategory.stream().filter(question -> 
 			!userSession.getAnsweredQuestions().contains(question.getId())
@@ -49,9 +45,9 @@ public class QuizService {
 	}
 
 	public UserScore submitAnswer(AnswerSubmission answerSubmission) {
-		Optional<Option> currentOption = optionRepository.findById(answerSubmission.getSelectedOption());
+		Option currentOption = optionService.getOption(answerSubmission.getSelectedOption());
 
-		if (currentOption.isPresent() && currentOption.get().getIsCorrect() && currentOption.get().getQuestion().getId().equals(answerSubmission.getQuestionId())) {
+		if (currentOption != null && currentOption.getIsCorrect() && currentOption.getQuestion().getId().equals(answerSubmission.getQuestionId())) {
 			userSession.incrementScore();
 		}
 

@@ -17,7 +17,6 @@ import com.quizlier.core.exceptions.DuplicateEntityException;
 import com.quizlier.core.exceptions.InvalidEntityException;
 import com.quizlier.core.exceptions.MaximumEntityException;
 import com.quizlier.core.repository.OptionRepository;
-import com.quizlier.core.repository.QuestionRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -27,14 +26,13 @@ public class OptionService {
 
 	private final OptionRepository optionRepository;
 
-	private final QuestionRepository questionRepository;
+	private final QuestionService questionService;
 	
 	public OptionResponse createOption(OptionRequest request, Long questionId) throws InvalidEntityException, DuplicateEntityException, MaximumEntityException {
 		try {
-
-			Optional<Question> question = questionRepository.findById(questionId);
+			Question question = questionService.getSingleQuestion(questionId);
 			
-			if (question.isEmpty()) {
+			if (question == null) {
 				throw new InvalidEntityException(ServiceMessages.invalidEntity("question", questionId.toString()));
 			}
 			
@@ -68,7 +66,7 @@ public class OptionService {
 				option.setOption_text(request.getOptionText());
 				option.setIsCorrect(request.getIsCorrect());
 				option.setCreatedAt(Calendar.getInstance().getTime());
-				option.setQuestion(question.get());
+				option.setQuestion(question);
 				
 				optionRepository.save(option);
 
@@ -91,9 +89,9 @@ public class OptionService {
 	
 	public List<OptionResponse> getAllOptionsByQuestions(Long questionId) throws InvalidEntityException {
 		try {
-			Optional<Question> question = questionRepository.findById(questionId);
-			
-			if (question.isEmpty()) {
+			Question question = questionService.getSingleQuestion(questionId);
+
+			if (question == null) {
 				throw new InvalidEntityException(ServiceMessages.invalidEntity("question", questionId.toString()));
 			}
 
@@ -187,6 +185,19 @@ public class OptionService {
 			throw new InvalidEntityException(ServiceMessages.invalidEntity("option", optionId.toString()));
 		}
 		optionRepository.deleteById(optionId);
+	}
+
+	public Option getOption(Long id) {
+		Optional<Option> currentOption = optionRepository.findById(id);
+
+        return currentOption.orElse(null);
+
+    }
+
+	public List<Option> getOptions(Long questionId) {
+		List<Option> options = optionRepository.getOptionsForQuestions(questionId);
+
+		return options;
 	}
 
 }

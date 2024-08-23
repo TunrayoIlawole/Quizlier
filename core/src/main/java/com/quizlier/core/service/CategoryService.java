@@ -138,4 +138,10 @@ public class CategoryService {
 		}
 		categoryRepository.deleteById(categoryId);
 	}
+
+	public Category getSingleCategory(Long id) {
+		Optional<Category> category = categoryRepository.findById(id);
+
+		return category.orElse(null);
+	}
 }
