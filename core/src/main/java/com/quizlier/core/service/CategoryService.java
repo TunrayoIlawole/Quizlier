@@ -52,7 +52,7 @@ public class CategoryService {
 			return categoryResponse;
 	}
 	
-	public List<CategoryResponse> getAllCategories() throws Exception {
+	public List<CategoryResponse> getAllCategories() {
         List<Category> categories = categoryRepository.findAll();
 
         List<CategoryResponse> responseList = new ArrayList<>();
@@ -101,7 +101,6 @@ public class CategoryService {
     }
 	
 	public CategoryResponse updateCategory(Long categoryId, CategoryRequest categoryRequest) throws InvalidEntityException, DuplicateEntityException {
-		System.out.println("line 104 - works");
 		Optional<Category> category = categoryRepository.findById(categoryId);
 		
 			if (category.isEmpty()) {

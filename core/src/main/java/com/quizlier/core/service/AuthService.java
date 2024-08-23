@@ -53,10 +53,6 @@ public class AuthService {
     }
 
     public void sendUserHighscore(String username, String highScore) {
-        try {
-            restTemplate.postForEntity(AUTH_URL + "/highscore?username=" + username + "&score=" + highScore, null, String.class);
-        } catch (Exception e) {
-            throw e;
-        }
+        restTemplate.postForEntity(AUTH_URL + "/highscore?username=" + username + "&score=" + highScore, null, String.class);
     }
 }

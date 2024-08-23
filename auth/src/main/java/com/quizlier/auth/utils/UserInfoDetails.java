@@ -15,8 +15,8 @@ import com.quizlier.common.entity.UserRole;
 
 public class UserInfoDetails implements UserDetails {
 	
-	private String name;
-	private String password;
+	private final String name;
+	private final String password;
 	private List<GrantedAuthority> authorities; 
 	
 	public UserInfoDetails(User user) {
