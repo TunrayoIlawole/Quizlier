@@ -4,11 +4,8 @@ import com.quizlier.common.dto.OptionResponse;
 import com.quizlier.common.vo.ResponseData;
 import com.quizlier.common.vo.ServiceMessages;
 import com.quizlier.common.vo.ServiceStatusCodes;
-import com.quizlier.core.exceptions.DuplicateEntityException;
-import com.quizlier.core.exceptions.InvalidEntityException;
-import com.quizlier.core.exceptions.MaximumEntityException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatusCode;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -16,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 import com.quizlier.common.dto.OptionRequest;
 import com.quizlier.core.service.OptionService;
 
-import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -28,79 +24,44 @@ public class OptionController {
 	@PostMapping(path = "{questionId}")
 	@PreAuthorize("hasAuthority('ROLE_admin')")
 	public ResponseEntity createOption(@RequestBody OptionRequest request, @PathVariable Long questionId) {
-		ResponseData response = new ResponseData<>(ServiceStatusCodes.ERROR, ServiceMessages.GENERAL_ERROR_MESSAGE);
 
-		try {
-			OptionResponse option = optionService.createOption(request, questionId);
-			response.setStatus(ServiceStatusCodes.SUCCESS);
-			response.setMessage(ServiceMessages.SUCCESS_RESPONSE);
-			response.setData(option);
-			return ResponseEntity.ok(response);
-		} catch (DuplicateEntityException | MaximumEntityException e) {
-			response.setMessage(e.getMessage());
-			return ResponseEntity.status(HttpStatusCode.valueOf(400)).body(response);
-		} catch (InvalidEntityException e) {
-			response.setMessage(e.getMessage());
-			return ResponseEntity.status(HttpStatusCode.valueOf(404)).body(response);
-		} catch (Exception e) {
-			return ResponseEntity.internalServerError().body(e.getMessage());
-		}
+		OptionResponse option = optionService.createOption(request, questionId);
+
+		ResponseData<OptionResponse> response = new ResponseData<OptionResponse>(ServiceStatusCodes.SUCCESS, ServiceMessages.SUCCESS_RESPONSE);
+
+		response.setData(option);
+		return ResponseEntity.ok(response);
 	}
 	
 	@GetMapping(path = "{questionId}")
 	public ResponseEntity getAllOptions(@PathVariable Long questionId) {
-		ResponseData response = new ResponseData<>(ServiceStatusCodes.ERROR, ServiceMessages.GENERAL_ERROR_MESSAGE);
+		List<OptionResponse> options = optionService.getAllOptionsByQuestions(questionId);
 
-		try {
-			List<OptionResponse> options = optionService.getAllOptionsByQuestions(questionId);
+		ResponseData<List<OptionResponse>> response = new ResponseData<List<OptionResponse>>(ServiceStatusCodes.SUCCESS, ServiceMessages.SUCCESS_RESPONSE);
+		response.setData(options);
 
-			response.setData(options);
-			response.setStatus(ServiceStatusCodes.SUCCESS);
-			response.setMessage(ServiceMessages.SUCCESS_RESPONSE);
-			return ResponseEntity.ok().body(response);
-		} catch (InvalidEntityException e) {
-			response.setMessage(e.getMessage());
-			return ResponseEntity.status(HttpStatusCode.valueOf(404)).body(response);
-		} catch (Exception e) {
-			return ResponseEntity.internalServerError().body(e.getMessage());
-		}
+		return ResponseEntity.ok().body(response);
 	}
 	
 	@DeleteMapping(path = "{optionId}")
 	@PreAuthorize("hasAuthority('ROLE_admin')")
 	public ResponseEntity deleteOption(@PathVariable Long optionId) {
-		ResponseData response = new ResponseData<>(ServiceStatusCodes.ERROR, ServiceMessages.GENERAL_ERROR_MESSAGE);
+		optionService.deleteOption(optionId);
 
-		try {
-			optionService.deleteOption(optionId);
-			response.setStatus(ServiceStatusCodes.SUCCESS);
-			response.setMessage(ServiceMessages.SUCCESS_RESPONSE);
-			return ResponseEntity.ok().body(response);
-		} catch (InvalidEntityException e) {
-			response.setMessage(e.getMessage());
-			return ResponseEntity.status(HttpStatusCode.valueOf(404)).body(response);
-		} catch (Exception e) {
-			return ResponseEntity.internalServerError().body(e.getMessage());
-		}
+		ResponseData response = new ResponseData<>(ServiceStatusCodes.SUCCESS, ServiceMessages.SUCCESS_RESPONSE);
+
+		return ResponseEntity.ok().body(response);
 	}
 	
 	@PutMapping(path = "{optionId}")
 	@PreAuthorize("hasAuthority('ROLE_admin')")
 	public ResponseEntity updateOption(@PathVariable Long optionId, @RequestBody OptionRequest optionRequest) {
-		ResponseData response = new ResponseData<>(ServiceStatusCodes.ERROR, ServiceMessages.GENERAL_ERROR_MESSAGE);
+		OptionResponse option = optionService.updateOption(optionId, optionRequest);
 
-		try {
-			OptionResponse option = optionService.updateOption(optionId, optionRequest);
+		ResponseData<OptionResponse> response = new ResponseData<OptionResponse>(ServiceStatusCodes.SUCCESS, ServiceMessages.SUCCESS_RESPONSE);
+		response.setData(option);
 
-			response.setData(option);
-			response.setStatus(ServiceStatusCodes.SUCCESS);
-			response.setMessage(ServiceMessages.SUCCESS_RESPONSE);
-			return ResponseEntity.ok().body(response);
-		} catch (InvalidEntityException e) {
-			response.setMessage(e.getMessage());
-			return ResponseEntity.status(HttpStatusCode.valueOf(404)).body(response);
-		} catch (Exception e) {
-			return ResponseEntity.internalServerError().body(e.getMessage());
-		}
+		return ResponseEntity.ok().body(response);
+
 	}
 }
