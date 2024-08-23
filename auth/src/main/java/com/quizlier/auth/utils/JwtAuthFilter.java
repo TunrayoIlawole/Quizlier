@@ -1,9 +1,8 @@
 package com.quizlier.auth.utils;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import com.quizlier.auth.service.UserInfoService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.filter.OncePerRequestFilter;
-
-import com.quizlier.auth.service.UserService;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -18,13 +17,11 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 @Component
+@RequiredArgsConstructor
 public class JwtAuthFilter extends OncePerRequestFilter {
 
-	@Autowired
-	private JwtService jwtService;
-	
-	@Autowired
-	private UserService userService;
+	private final JwtService jwtService;
+	private final UserInfoService userInfoService;
 	
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -38,7 +35,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 		}
 		
 		if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-			UserDetails userDetails = userService.loadUserByUsername(username);
+			UserDetails userDetails = userInfoService.loadUserByUsername(username);
 			
 			if (jwtService.validateToken(token, userDetails)) {
 				UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());

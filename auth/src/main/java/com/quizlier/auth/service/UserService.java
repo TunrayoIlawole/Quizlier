@@ -8,30 +8,23 @@ import com.quizlier.auth.exceptions.UserNotFoundException;
 import com.quizlier.auth.utils.JwtService;
 import com.quizlier.common.dto.AuthRequest;
 import com.quizlier.common.dto.UserSignupRequest;
-import com.quizlier.common.dto.UserloginResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.quizlier.auth.repository.UserRepository;
-import com.quizlier.auth.utils.UserInfoDetails;
 import com.quizlier.common.dto.UserLoginRequest;
 import com.quizlier.common.entity.User;
 import com.quizlier.common.entity.UserRole;
-import com.quizlier.common.vo.ResponseData;
 import com.quizlier.common.vo.ServiceMessages;
-import com.quizlier.common.vo.ServiceStatusCodes;
 
 @Service
 @RequiredArgsConstructor
-public class UserService implements UserDetailsService {
+public class UserService {
 
 	private final UserRepository userRepository;
 
@@ -97,12 +90,6 @@ public class UserService implements UserDetailsService {
 		} else {
 			throw new UsernameNotFoundException("Invalid user request!");
 		}
-	}
-	
-	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		Optional<User> user = userRepository.findUserByUsername(username);
-		
-		return user.map(UserInfoDetails::new).orElseThrow(() -> new UsernameNotFoundException("User not found " + username));
 	}
 
 	public User getUserByUsername(String username) {

@@ -1,5 +1,6 @@
 package com.quizlier.auth.controllers;
 
+import com.quizlier.auth.service.AuthService;
 import com.quizlier.common.dto.*;
 import com.quizlier.common.entity.User;
 import com.quizlier.common.vo.ResponseData;
@@ -8,11 +9,9 @@ import com.quizlier.common.vo.ServiceStatusCodes;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.web.bind.annotation.*;
 
 import com.quizlier.auth.service.UserService;
-import com.quizlier.auth.utils.JwtService;
 
 
 @RestController
@@ -24,9 +23,7 @@ public class UserController {
 	public static String PLAYER = "player";
 	public static String ADMIN = "admin";
 
-	private final AuthenticationManager authenticationManager;
-
-	private final JwtService jwtService;
+	private final AuthService authService;
 	
 	private final UserService userService;
 	
@@ -93,7 +90,7 @@ public class UserController {
 		authRequest.setUsername(user.getUsername());
 		authRequest.setPassword(userLoginRequest.getPassword());
 
-		String token = userService.authenticateUser(authRequest);
+		String token = authService.authenticateUser(authRequest);
 
 		UserloginResponse userloginResponse = new UserloginResponse();
 		userloginResponse.setEmail(user.getEmail());
@@ -109,20 +106,17 @@ public class UserController {
 
 	@GetMapping("/validateToken")
 	public ResponseEntity<Boolean> validateToken(@RequestParam("token") String token) {
-		String username = jwtService.extractUsername(token);
-		boolean isValid = jwtService.validateToken(token, username);
+		boolean isValid = authService.validateToken(token);
 
 		return ResponseEntity.ok(isValid);
 	}
 
 	@GetMapping("/getUsername")
 	public ResponseEntity<String> fetchUsername(@RequestParam("token") String token) {
-		String username = jwtService.extractUsername(token);
+		String username = authService.fetchUsername(token);
 
 		return ResponseEntity.ok(username);
 	}
-
-
 
 	@GetMapping("/roles")
 	public ResponseEntity<String> getUserRoles(@RequestParam("username") String username) {

@@ -1,6 +1,7 @@
 package com.quizlier.auth.utils;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import com.quizlier.auth.service.UserInfoService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -11,27 +12,18 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import com.quizlier.auth.service.UserService;
-
 @Configuration
+@RequiredArgsConstructor
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
-	
-	@Autowired
-	private JwtAuthFilter authFilter;
-	
-	
-	@Bean
-	public UserDetailsService userDetailsService() {
-		return new UserService();
-	}
+	private final JwtAuthFilter authFilter;
+	private final UserInfoService userInfoService;
 	
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -45,19 +37,6 @@ public class SecurityConfig {
 				.authenticationProvider(authenticationProvider())
 				.addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class)
 				.build();
-				
-//		return http.csrf().disable()
-//				.authorizeHttpRequests()
-//				.requestMatchers("api/v1/auth/generateToken", "api/v1/auth/signup", "api/v1/auth/signin", "api/v1/auth/welcome").permitAll()
-//				.and()
-//				.authorizeHttpRequests().requestMatchers("api/v1/auth/adminprofile", "api/v1/auth/playerprofile").authenticated()
-//				.and()
-//				.sessionManagement()
-//				.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-//				.and()
-//				.authenticationProvider(authenticationProvider())
-//				.addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class)
-//				.build();
 	}
 	
 	@Bean
@@ -68,7 +47,7 @@ public class SecurityConfig {
 	@Bean
 	public AuthenticationProvider authenticationProvider() {
 		DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
-		authenticationProvider.setUserDetailsService(userDetailsService());
+		authenticationProvider.setUserDetailsService(userInfoService);
 		authenticationProvider.setPasswordEncoder(passwordEncoder());
 		return authenticationProvider;
 	}

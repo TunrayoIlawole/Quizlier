@@ -17,13 +17,11 @@ public class UserInfoDetails implements UserDetails {
 	
 	private final String name;
 	private final String password;
-	private List<GrantedAuthority> authorities; 
+	private final List<GrantedAuthority> authorities;
 	
 	public UserInfoDetails(User user) {
 		name = user.getUsername();
 		password = user.getPassword();
-		
-//		authority = new SimpleGrantedAuthority("ROLE_" + user.getUserRole().name());
 		
 		authorities = Arrays.asList(user.getUserRole())
 				.stream()
