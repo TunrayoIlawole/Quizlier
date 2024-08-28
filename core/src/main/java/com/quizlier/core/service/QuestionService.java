@@ -7,6 +7,8 @@ import java.util.Objects;
 import java.util.Optional;
 
 import com.quizlier.common.vo.ServiceMessages;
+import com.quizlier.core.mappers.OptionMapper;
+import com.quizlier.core.mappers.QuestionMapper;
 import org.springframework.stereotype.Service;
 
 import com.quizlier.common.dto.OptionResponse;
@@ -32,6 +34,10 @@ public class QuestionService {
 
 	private final OptionService optionService;
 
+	private final QuestionMapper questionMapper;
+
+	private final OptionMapper optionMapper;
+
 
 	public QuestionResponse createQuestion(QuestionRequest request, Long categoryId) throws InvalidEntityException, DuplicateEntityException {
 			Category category = categoryService.getSingleCategory(categoryId);
@@ -52,9 +58,7 @@ public class QuestionService {
 			question.setCreatedAt(Calendar.getInstance().getTime());
 			questionRepository.save(question);
 
-			QuestionResponse questionResponse = new QuestionResponse();
-			questionResponse.setId(question.getId());
-			questionResponse.setQuestion(request.getQuestion());
+			QuestionResponse questionResponse = questionMapper.questionToQuestionresponse(question);
 			questionResponse.setCategoryId(categoryId);
 			
 			return questionResponse;
@@ -78,9 +82,8 @@ public class QuestionService {
 		List<QuestionResponse> responseList = new ArrayList<>();
 
 		questions.forEach(question -> {
-			QuestionResponse questionResponse = new QuestionResponse();
-			questionResponse.setId(question.getId());
-			questionResponse.setQuestion(question.getQuestion());
+			QuestionResponse questionResponse = questionMapper.questionToQuestionresponse(question);
+			questionResponse.setCategoryId(categoryId);
 
 			responseList.add(questionResponse);
 		});
@@ -105,10 +108,7 @@ public class QuestionService {
 			List<Option> optionsByQuestion = optionService.getOptions(questionId);
 			
 			optionsByQuestion.forEach(option -> {
-				OptionResponse optionResponse = new OptionResponse();
-				optionResponse.setId(option.getId());
-				optionResponse.setOptionText(option.getOption_text());
-				optionResponse.setIsCorrect(option.getIsCorrect());
+				OptionResponse optionResponse = optionMapper.optionToOptionresponse(option);
 				optionResponse.setQuestionId(questionId);
 				
 				optionList.add(optionResponse);
@@ -137,9 +137,7 @@ public class QuestionService {
 			question.get().setUpdatedAt(Calendar.getInstance().getTime());
 			questionRepository.save(question.get());
 
-			QuestionResponse questionResponse = new QuestionResponse();
-			questionResponse.setId(questionId);
-			questionResponse.setQuestion(questionRequest.getQuestion());
+			QuestionResponse questionResponse = questionMapper.questionToQuestionresponse(question.get());
 			questionResponse.setCategoryId(question.get().getCategory().getId());
 			
 			return questionResponse;

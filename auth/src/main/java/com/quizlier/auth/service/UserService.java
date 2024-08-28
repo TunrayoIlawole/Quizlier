@@ -5,9 +5,9 @@ import java.util.Optional;
 import com.quizlier.auth.exceptions.AuthenticationFailedException;
 import com.quizlier.auth.exceptions.DuplicateUserException;
 import com.quizlier.auth.exceptions.UserNotFoundException;
+import com.quizlier.auth.mappers.UserMapper;
 import com.quizlier.auth.utils.JwtService;
-import com.quizlier.common.dto.AuthRequest;
-import com.quizlier.common.dto.UserSignupRequest;
+import com.quizlier.common.dto.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -17,7 +17,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.quizlier.auth.repository.UserRepository;
-import com.quizlier.common.dto.UserLoginRequest;
 import com.quizlier.common.entity.User;
 import com.quizlier.common.entity.UserRole;
 import com.quizlier.common.vo.ServiceMessages;
@@ -32,9 +31,13 @@ public class UserService {
 
 	private final AuthenticationManager authenticationManager;
 
+	private final AuthService authService;
+
 	private final JwtService jwtService;
+
+	private final UserMapper userMapper;
 	
-	public User createPlayerUser(UserSignupRequest userRequest, String role) throws DuplicateUserException {
+	public UserSignupResponse createPlayerUser(UserSignupRequest userRequest, String role) throws DuplicateUserException {
 		Optional<User> userByEmail = userRepository.findUserByEmail(userRequest.getEmail());
 		
 		Optional<User> userByUsername = userRepository.findUserByUsername(userRequest.getUsername());
@@ -58,23 +61,32 @@ public class UserService {
 		user.setHighest_score(0);
 		
 		userRepository.save(user);
+
+		UserSignupResponse userSignupResponse = userMapper.userToUsersignupresponse(user);
 		
-		return user;
+		return userSignupResponse;
 	}
 	
-	public User signInPlayer (UserLoginRequest userLoginRequest) throws UserNotFoundException, AuthenticationFailedException {
+	public UserloginResponse signInPlayer (UserLoginRequest userLoginRequest) throws UserNotFoundException, AuthenticationFailedException {
 			Optional<User> userByEmail = userRepository.findUserByEmail(userLoginRequest.getEmail());
 			
 			if (!userByEmail.isPresent()) {
 				throw new UserNotFoundException(ServiceMessages.INVALID_USER);
 			} else {
 				Boolean matched = encoder.matches(userLoginRequest.getPassword(), userByEmail.get().getPassword());
-//				String hashedPassword = passwordEncryption.toHexString(passwordEncryption.getSHA(userLoginRequest.getPassword()));
-				
+
 				if (!matched) {
 					throw new AuthenticationFailedException(ServiceMessages.CREDENTIALS_MISMATCH);
 				} else {
-					return userByEmail.get();
+					AuthRequest authRequest = new AuthRequest();
+					authRequest.setUsername(userByEmail.get().getUsername());
+					authRequest.setPassword(userLoginRequest.getPassword());
+
+					String token = authService.authenticateUser(authRequest);
+					UserloginResponse userloginResponse = userMapper.userToUserLoginResponse(userByEmail.get());
+					userloginResponse.setToken(token);
+
+					return userloginResponse;
 				}
 			}
 	}

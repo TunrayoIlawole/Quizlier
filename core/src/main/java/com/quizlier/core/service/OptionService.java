@@ -7,6 +7,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 import com.quizlier.common.vo.ServiceMessages;
+import com.quizlier.core.mappers.OptionMapper;
 import org.springframework.stereotype.Service;
 
 import com.quizlier.common.dto.OptionRequest;
@@ -27,9 +28,10 @@ public class OptionService {
 	private final OptionRepository optionRepository;
 
 	private final QuestionService questionService;
+
+	private final OptionMapper optionMapper;
 	
 	public OptionResponse createOption(OptionRequest request, Long questionId) throws InvalidEntityException, DuplicateEntityException, MaximumEntityException {
-		try {
 			Question question = questionService.getSingleQuestion(questionId);
 			
 			if (question == null) {
@@ -70,21 +72,13 @@ public class OptionService {
 				
 				optionRepository.save(option);
 
-				OptionResponse optionResponse = new OptionResponse();
-				optionResponse.setId(option.getId());
+				OptionResponse optionResponse = optionMapper.optionToOptionresponse(option);
 				optionResponse.setQuestionId(questionId);
-				optionResponse.setOptionText(request.getOptionText());
-				optionResponse.setIsCorrect(request.getIsCorrect());
 
 				return optionResponse;
 			} else {
 				throw new DuplicateEntityException(ServiceMessages.DUPLICATE_OPTIONS);
 			}
-
-		} catch (Exception e) {
-			throw e;
-
-		}
 	}
 	
 	public List<OptionResponse> getAllOptionsByQuestions(Long questionId) throws InvalidEntityException {
@@ -106,10 +100,8 @@ public class OptionService {
 		    List<OptionResponse> responseList = new ArrayList<>();
 
 		    options.forEach(option -> {
-		    	OptionResponse optionResponse = new OptionResponse();
-		    	optionResponse.setId(option.getId());
-		    	optionResponse.setOptionText(option.getOption_text());
-		    	optionResponse.setIsCorrect(option.getIsCorrect());
+		    	OptionResponse optionResponse = optionMapper.optionToOptionresponse(option);
+				optionResponse.setQuestionId(questionId);
 		    	
 		    	responseList.add(optionResponse);
 		    });
@@ -122,7 +114,6 @@ public class OptionService {
 	}
 	
 	public OptionResponse updateOption(Long optionId, OptionRequest optionRequest) throws InvalidEntityException, DuplicateEntityException {
-		try {
 			Optional<Option> optionById = optionRepository.findById(optionId);
 		
 			if (optionById.isEmpty()) {
@@ -165,17 +156,10 @@ public class OptionService {
 			optionById.get().setUpdatedAt(Calendar.getInstance().getTime());
 			optionRepository.save(optionById.get());
 
-			OptionResponse optionResponse = new OptionResponse();
-			optionResponse.setId(optionById.get().getId());
+			OptionResponse optionResponse = optionMapper.optionToOptionresponse(optionById.get());
 			optionResponse.setQuestionId(question.getId());
-			optionResponse.setOptionText(optionRequest.getOptionText());
-			optionResponse.setIsCorrect(optionRequest.getIsCorrect());
 
 			return optionResponse;
-		} catch (Exception e) {
-			throw e;
-
-		}
 	}
 	
 	public void deleteOption(Long optionId) throws InvalidEntityException {

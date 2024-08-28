@@ -48,15 +48,7 @@ public class UserController {
 	
 	@PostMapping("/signup/player")
 	public ResponseEntity signUpPlayer(@RequestBody UserSignupRequest userRequest) {
-		User user = userService.createPlayerUser(userRequest, PLAYER);
-
-		UserSignupResponse userSignupResponse = new UserSignupResponse();
-		userSignupResponse.setEmail(user.getEmail());
-		userSignupResponse.setUsername(user.getUsername());
-		userSignupResponse.setFirstName(user.getFirstName());
-		userSignupResponse.setLastName(user.getLastName());
-		userSignupResponse.setId(user.getId().toString());
-		userSignupResponse.setUserRole(user.getUserRole().name());
+		UserSignupResponse userSignupResponse = userService.createPlayerUser(userRequest, PLAYER);
 
 		ResponseData<UserSignupResponse> response = new ResponseData<>(ServiceStatusCodes.SUCCESS, ServiceMessages.SUCCESS_RESPONSE);
 		response.setData(userSignupResponse);
@@ -66,15 +58,7 @@ public class UserController {
 
 	@PostMapping("/signup/admin")
 	public ResponseEntity signUpAdmin(@RequestBody UserSignupRequest userRequest) {
-		User user = userService.createPlayerUser(userRequest, ADMIN);
-
-		UserSignupResponse userSignupResponse = new UserSignupResponse();
-		userSignupResponse.setEmail(user.getEmail());
-		userSignupResponse.setUsername(user.getUsername());
-		userSignupResponse.setFirstName(user.getFirstName());
-		userSignupResponse.setLastName(user.getLastName());
-		userSignupResponse.setId(user.getId().toString());
-		userSignupResponse.setUserRole(user.getUserRole().name());
+		UserSignupResponse userSignupResponse = userService.createPlayerUser(userRequest, ADMIN);
 
 		ResponseData<UserSignupResponse> response = new ResponseData<>(ServiceStatusCodes.SUCCESS, ServiceMessages.SUCCESS_RESPONSE);
 		response.setData(userSignupResponse);
@@ -85,18 +69,7 @@ public class UserController {
 	@PostMapping("/signin")
 	public ResponseEntity signIn(@RequestBody UserLoginRequest userLoginRequest) {
 
-		User user = userService.signInPlayer(userLoginRequest);
-		AuthRequest authRequest = new AuthRequest();
-		authRequest.setUsername(user.getUsername());
-		authRequest.setPassword(userLoginRequest.getPassword());
-
-		String token = authService.authenticateUser(authRequest);
-
-		UserloginResponse userloginResponse = new UserloginResponse();
-		userloginResponse.setEmail(user.getEmail());
-		userloginResponse.setUserId(user.getId().toString());
-		userloginResponse.setUsername(user.getUsername());
-		userloginResponse.setToken(token);
+		UserloginResponse userloginResponse = userService.signInPlayer(userLoginRequest);
 
 		ResponseData<UserloginResponse> response = new ResponseData<>(ServiceStatusCodes.SUCCESS, ServiceMessages.AUTH_SUCCESS);
 
@@ -113,9 +86,7 @@ public class UserController {
 
 	@GetMapping("/getUsername")
 	public ResponseEntity<String> fetchUsername(@RequestParam("token") String token) {
-		String username = authService.fetchUsername(token);
-
-		return ResponseEntity.ok(username);
+		return ResponseEntity.ok(authService.fetchUsername(token));
 	}
 
 	@GetMapping("/roles")
@@ -123,9 +94,7 @@ public class UserController {
 		User user = userService.getUserByUsername(username);
 
 		if (user != null) {
-			String userRole = user.getUserRole().name();
-
-			return ResponseEntity.ok(userRole);
+			return ResponseEntity.ok(user.getUserRole().name());
 		} else {
 			return ResponseEntity.notFound().build();
 		}
@@ -136,9 +105,7 @@ public class UserController {
 		User user = userService.getUserByUsername(username);
 
 		if (user != null) {
-			int highestScore = user.getHighest_score();
-
-			return ResponseEntity.ok(highestScore);
+			return ResponseEntity.ok(user.getHighest_score());
 		} else {
 			return ResponseEntity.notFound().build();
 		}

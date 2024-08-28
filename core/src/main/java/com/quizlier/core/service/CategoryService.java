@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import com.quizlier.core.mappers.CategoryMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -30,6 +31,8 @@ public class CategoryService {
 	private final CategoryRepository categoryRepository;
 
 	private final QuestionRepository questionRepository;
+
+	private final CategoryMapper categoryMapper;
 	
 	
 	public CategoryResponse createCategory(CategoryRequest request) throws DuplicateEntityException {
@@ -38,16 +41,11 @@ public class CategoryService {
 			if (categoryByName.isPresent()) {
 				throw new DuplicateEntityException(ServiceMessages.duplicateEntity("Category"));
 			}
-			Category category = new Category();
-			category.setName(request.getName());
-			category.setDescription(request.getDescription());
+			Category category = categoryMapper.categoryRequestToCategory(request);
 			category.setCreatedAt(Calendar.getInstance().getTime());
 			categoryRepository.save(category);
 
-			CategoryResponse categoryResponse = new CategoryResponse();
-			categoryResponse.setId(category.getId());
-			categoryResponse.setName(request.getName());
-			categoryResponse.setDescription(request.getDescription());
+			CategoryResponse categoryResponse = categoryMapper.categoryToCategoryresponse(category);
 			
 			return categoryResponse;
 	}
@@ -58,11 +56,7 @@ public class CategoryService {
         List<CategoryResponse> responseList = new ArrayList<>();
 
         categories.forEach(category -> {
-            CategoryResponse data = new CategoryResponse();
-            data.setId(category.getId());
-            data.setName(category.getName());
-            data.setDescription(category.getDescription());
-
+            CategoryResponse data = categoryMapper.categoryToCategoryresponse(category);
             responseList.add(data);
         });
         return responseList;
@@ -120,10 +114,7 @@ public class CategoryService {
 			}
 			categoryRepository.save(category.get());
 
-			CategoryResponse categoryResponse = new CategoryResponse();
-			categoryResponse.setId(category.get().getId());
-			categoryResponse.setName(categoryRequest.getName());
-			categoryResponse.setDescription(categoryRequest.getDescription());
+			CategoryResponse categoryResponse = categoryMapper.categoryToCategoryresponse(category.get());
 			
 			return categoryResponse;
 	}
