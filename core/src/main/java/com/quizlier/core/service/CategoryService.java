@@ -22,7 +22,6 @@ import com.quizlier.common.vo.ServiceStatusCodes;
 import com.quizlier.core.exceptions.DuplicateEntityException;
 import com.quizlier.core.exceptions.InvalidEntityException;
 import com.quizlier.core.repository.CategoryRepository;
-import com.quizlier.core.repository.QuestionRepository;
 
 @Service
 @RequiredArgsConstructor
@@ -30,7 +29,7 @@ public class CategoryService {
 
 	private final CategoryRepository categoryRepository;
 
-	private final QuestionRepository questionRepository;
+	private final QuestionService questionService;
 
 	private final CategoryMapper categoryMapper;
 	
@@ -77,8 +76,7 @@ public class CategoryService {
 
         List<QuestionResponse> questionList = new ArrayList<>();
 
-		// Have method in question service that does this
-        List<Question> questionsByCategory = questionRepository.getQuestionsForCategory(categoryId);
+        List<Question> questionsByCategory = questionService.getQuestionsForCategory(categoryId);
 
         questionsByCategory.forEach(question -> {
             QuestionResponse questionResponse = new QuestionResponse();
