@@ -50,7 +50,7 @@ public class UserService {
 		}
 		
 		User user = new User();
-		UserRole userRole = role.equalsIgnoreCase("admin") ? UserRole.admin : UserRole.player;
+		UserRole userRole = role.equalsIgnoreCase("admin") ? UserRole.ADMIN : UserRole.PLAYER;
 		
 		user.setEmail(userRequest.getEmail());
 		user.setUsername(userRequest.getUsername());

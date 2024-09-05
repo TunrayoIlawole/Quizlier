@@ -2,8 +2,10 @@ package com.quizlier.auth.utils;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -23,8 +25,7 @@ public class UserInfoDetails implements UserDetails {
 		name = user.getUsername();
 		password = user.getPassword();
 		
-		authorities = Arrays.asList(user.getUserRole())
-				.stream()
+		authorities = Stream.of(user.getUserRole())
 				.map(role -> new SimpleGrantedAuthority("ROLE_" + role.name()))
 				.collect(Collectors.toList());
 				

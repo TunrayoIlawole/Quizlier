@@ -3,14 +3,11 @@ package com.quizlier.auth.service;
 import com.quizlier.auth.utils.JwtService;
 import com.quizlier.common.dto.AuthRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 @Service
 @RequiredArgsConstructor
@@ -33,14 +30,14 @@ public class AuthService {
         }
     }
 
-    public boolean validateToken(@RequestParam("token") String token) {
+    public boolean validateToken(String token) {
         String username = jwtService.extractUsername(token);
         boolean isValid = jwtService.validateToken(token, username);
 
         return isValid;
     }
 
-    public String fetchUsername(@RequestParam("token") String token) {
+    public String fetchUsername(String token) {
         String username = jwtService.extractUsername(token);
 
         return username;
