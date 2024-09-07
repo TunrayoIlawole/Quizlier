@@ -1,6 +1,6 @@
 CREATE TYPE user_role AS ENUM ('admin', 'super-admin', 'player');
 
-CREATE TABLE "user"
+CREATE TABLE IF NOT EXISTS auth_service.user
 (
 	id bigserial not null primary key,
 	firstName varchar(255) not null,
