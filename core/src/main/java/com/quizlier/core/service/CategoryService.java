@@ -12,10 +12,7 @@ import org.springframework.stereotype.Service;
 
 import com.quizlier.common.dto.CategoryRequest;
 import com.quizlier.common.dto.CategoryResponse;
-import com.quizlier.common.dto.CategoryResponseFull;
-import com.quizlier.common.dto.QuestionResponse;
 import com.quizlier.common.entity.Category;
-import com.quizlier.common.entity.Question;
 import com.quizlier.common.vo.ResponseData;
 import com.quizlier.common.vo.ServiceMessages;
 import com.quizlier.common.vo.ServiceStatusCodes;
@@ -29,11 +26,8 @@ public class CategoryService {
 
 	private final CategoryRepository categoryRepository;
 
-	private final QuestionService questionService;
-
 	private final CategoryMapper categoryMapper;
-	
-	
+
 	public CategoryResponse createCategory(CategoryRequest request) throws DuplicateEntityException {
 			Optional<Category> categoryByName = categoryRepository.findCategoryByName(request.getName());
 			
@@ -61,32 +55,18 @@ public class CategoryService {
         return responseList;
     }
 	
-	public CategoryResponseFull getCategory(Long categoryId) throws InvalidEntityException {
+	public CategoryResponse getCategory(Long categoryId) throws InvalidEntityException {
         Optional<Category> category = categoryRepository.findById(categoryId);
 
         if (category.isEmpty()) {
             throw new InvalidEntityException(ServiceMessages.invalidEntity("Category", categoryId.toString()));
         }
 
-        CategoryResponseFull data = new CategoryResponseFull();
+        CategoryResponse data = new CategoryResponse();
 
         data.setId(category.get().getId());
         data.setName(category.get().getName());
         data.setDescription(category.get().getDescription());
-
-        List<QuestionResponse> questionList = new ArrayList<>();
-
-        List<Question> questionsByCategory = questionService.getQuestionsForCategory(categoryId);
-
-        questionsByCategory.forEach(question -> {
-            QuestionResponse questionResponse = new QuestionResponse();
-            questionResponse.setId(question.getId());
-            questionResponse.setQuestion(question.getQuestion());
-
-            questionList.add(questionResponse);
-        });
-
-        data.setQuestions(questionList);
 
         return data;
 

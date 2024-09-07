@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.quizlier.common.dto.QuestionRequest;
 import com.quizlier.common.dto.QuestionResponse;
-import com.quizlier.common.dto.QuestionResponseFull;
 import com.quizlier.common.entity.Question;
 import com.quizlier.common.vo.ResponseData;
 import com.quizlier.common.vo.ServiceMessages;
@@ -35,7 +34,7 @@ public class QuestionController {
 	public ResponseEntity createQuestion(@RequestBody QuestionRequest request, @PathVariable Long categoryId) {
 		QuestionResponse question = questionService.createQuestion(request, categoryId);
 
-		ResponseData<QuestionResponse> response = new ResponseData<QuestionResponse>(ServiceStatusCodes.SUCCESS, ServiceMessages.SUCCESS_RESPONSE);
+		ResponseData<QuestionResponse> response = new ResponseData<>(ServiceStatusCodes.SUCCESS, ServiceMessages.SUCCESS_RESPONSE);
 		response.setData(question);
 
 		return ResponseEntity.ok(response);
@@ -46,7 +45,7 @@ public class QuestionController {
 	public ResponseEntity getAllQuestions() {
 		List<Question> questions = questionService.getAllQuestions();
 
-		ResponseData<List<Question>> response = new ResponseData<List<Question>>(ServiceStatusCodes.SUCCESS, ServiceMessages.SUCCESS_RESPONSE);
+		ResponseData<List<Question>> response = new ResponseData<>(ServiceStatusCodes.SUCCESS, ServiceMessages.SUCCESS_RESPONSE);
 		response.setData(questions);
 
 		return ResponseEntity.ok().body(response);
@@ -55,9 +54,9 @@ public class QuestionController {
 	@GetMapping(path = "{questionId}")
 	public ResponseEntity getQuestion(@PathVariable Long questionId) {
 
-		QuestionResponseFull question = questionService.getQuestion(questionId);
+		QuestionResponse question = questionService.getQuestion(questionId);
 
-		ResponseData<QuestionResponseFull> response = new ResponseData<QuestionResponseFull>(ServiceStatusCodes.SUCCESS, ServiceMessages.SUCCESS_RESPONSE);
+		ResponseData<QuestionResponse> response = new ResponseData<>(ServiceStatusCodes.SUCCESS, ServiceMessages.SUCCESS_RESPONSE);
 		response.setData(question);
 
 		return ResponseEntity.ok().body(response);
@@ -69,7 +68,7 @@ public class QuestionController {
 	public ResponseEntity updateQuestion(@PathVariable Long questionId, @RequestBody QuestionRequest questionRequest) {
 		QuestionResponse question = questionService.updateQuestion(questionId, questionRequest);
 
-		ResponseData<QuestionResponse> response = new ResponseData<QuestionResponse>(ServiceStatusCodes.SUCCESS, ServiceMessages.SUCCESS_RESPONSE);
+		ResponseData<QuestionResponse> response = new ResponseData<>(ServiceStatusCodes.SUCCESS, ServiceMessages.SUCCESS_RESPONSE);
 		response.setData(question);
 		return ResponseEntity.ok().body(response);
 

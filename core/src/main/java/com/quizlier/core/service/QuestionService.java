@@ -11,12 +11,9 @@ import com.quizlier.core.mappers.OptionMapper;
 import com.quizlier.core.mappers.QuestionMapper;
 import org.springframework.stereotype.Service;
 
-import com.quizlier.common.dto.OptionResponse;
 import com.quizlier.common.dto.QuestionRequest;
 import com.quizlier.common.dto.QuestionResponse;
-import com.quizlier.common.dto.QuestionResponseFull;
 import com.quizlier.common.entity.Category;
-import com.quizlier.common.entity.Option;
 import com.quizlier.common.entity.Question;
 import com.quizlier.core.exceptions.DuplicateEntityException;
 import com.quizlier.core.exceptions.InvalidEntityException;
@@ -32,11 +29,7 @@ public class QuestionService {
 
 	private final CategoryService categoryService;
 
-	private final OptionService optionService;
-
 	private final QuestionMapper questionMapper;
-
-	private final OptionMapper optionMapper;
 
 
 	public QuestionResponse createQuestion(QuestionRequest request, Long categoryId) throws InvalidEntityException, DuplicateEntityException {
@@ -70,51 +63,38 @@ public class QuestionService {
 			return questions;
 	}
 	
-	public List<QuestionResponse> getAllQuestionsByCategory(Long categoryId) throws InvalidEntityException {
-		Category category = categoryService.getSingleCategory(categoryId);
-
-		if (category == null) {
-			throw new InvalidEntityException(ServiceMessages.invalidEntity("Category", categoryId.toString()));
-		}
-
-		List<Question> questions = questionRepository.getQuestionsForCategory(categoryId);
-
-		List<QuestionResponse> responseList = new ArrayList<>();
-
-		questions.forEach(question -> {
-			QuestionResponse questionResponse = questionMapper.questionToQuestionresponse(question);
-			questionResponse.setCategoryId(categoryId);
-
-			responseList.add(questionResponse);
-		});
-
-		return responseList;
-	}
+//	public List<QuestionResponse> getAllQuestionsByCategory(Long categoryId) throws InvalidEntityException {
+//		Category category = categoryService.getSingleCategory(categoryId);
+//
+//		if (category == null) {
+//			throw new InvalidEntityException(ServiceMessages.invalidEntity("Category", categoryId.toString()));
+//		}
+//
+//		List<Question> questions = questionRepository.getQuestionsForCategory(categoryId);
+//
+//		List<QuestionResponse> responseList = new ArrayList<>();
+//
+//		questions.forEach(question -> {
+//			QuestionResponse questionResponse = questionMapper.questionToQuestionresponse(question);
+//			questionResponse.setCategoryId(categoryId);
+//
+//			responseList.add(questionResponse);
+//		});
+//
+//		return responseList;
+//	}
 	
-	public QuestionResponseFull getQuestion(Long questionId) throws InvalidEntityException {
+	public QuestionResponse getQuestion(Long questionId) throws InvalidEntityException {
 			Optional<Question> question = questionRepository.findById(questionId);
 			
 			if (question.isEmpty()) {
 				throw new InvalidEntityException(ServiceMessages.invalidEntity("Question", questionId.toString()));
 			}
 			
-			QuestionResponseFull data = new QuestionResponseFull();
+			QuestionResponse data = new QuestionResponse();
 			
 			data.setId(question.get().getId());
 			data.setQuestion(question.get().getQuestion());
-			
-			List<OptionResponse> optionList = new ArrayList<>();
-			
-			List<Option> optionsByQuestion = optionService.getOptions(questionId);
-			
-			optionsByQuestion.forEach(option -> {
-				OptionResponse optionResponse = optionMapper.optionToOptionresponse(option);
-				optionResponse.setQuestionId(questionId);
-				
-				optionList.add(optionResponse);
-			});
-			
-			data.setOptions(optionList);
 			
 			return data;
 	}

@@ -2,7 +2,6 @@ package com.quizlier.core.controllers;
 
 import com.quizlier.common.dto.CategoryRequest;
 import com.quizlier.common.dto.CategoryResponse;
-import com.quizlier.common.dto.CategoryResponseFull;
 import com.quizlier.common.vo.ResponseData;
 import com.quizlier.common.vo.ServiceMessages;
 import com.quizlier.common.vo.ServiceStatusCodes;
@@ -46,9 +45,9 @@ public class CategoryController {
     @GetMapping(path = "{categoryId}")
     public ResponseEntity getCategory(@PathVariable Long categoryId) {
 
-        CategoryResponseFull category = categoryService.getCategory(categoryId);
+        CategoryResponse category = categoryService.getCategory(categoryId);
 
-        ResponseData<CategoryResponseFull> response = new ResponseData<CategoryResponseFull>(ServiceStatusCodes.SUCCESS, ServiceMessages.SUCCESS_RESPONSE);
+        ResponseData<CategoryResponse> response = new ResponseData<CategoryResponse>(ServiceStatusCodes.SUCCESS, ServiceMessages.SUCCESS_RESPONSE);
 
         response.setData(category);
         return ResponseEntity.ok().body(response);
