@@ -6,13 +6,8 @@ import com.quizlier.auth.exceptions.AuthenticationFailedException;
 import com.quizlier.auth.exceptions.DuplicateUserException;
 import com.quizlier.auth.exceptions.UserNotFoundException;
 import com.quizlier.auth.mappers.UserMapper;
-import com.quizlier.auth.utils.JwtService;
 import com.quizlier.common.dto.*;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -29,11 +24,7 @@ public class UserService {
 
 	private final PasswordEncoder encoder;
 
-	private final AuthenticationManager authenticationManager;
-
 	private final AuthService authService;
-
-	private final JwtService jwtService;
 
 	private final UserMapper userMapper;
 	
@@ -89,19 +80,6 @@ public class UserService {
 					return userloginResponse;
 				}
 			}
-	}
-
-	public String authenticateUser(AuthRequest authRequest) {
-		Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword()));
-
-		if (authentication.isAuthenticated()) {
-			String token = jwtService.generateToken(authRequest.getUsername());
-
-			return token;
-
-		} else {
-			throw new UsernameNotFoundException("Invalid user request!");
-		}
 	}
 
 	public User getUserByUsername(String username) {
