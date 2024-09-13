@@ -82,35 +82,29 @@ public class OptionService {
 	}
 	
 	public List<OptionResponse> getAllOptionsByQuestions(Long questionId) throws InvalidEntityException {
-		try {
-			Question question = questionService.getSingleQuestion(questionId);
+		Question question = questionService.getSingleQuestion(questionId);
 
-			if (question == null) {
-				throw new InvalidEntityException(ServiceMessages.invalidEntity("question", questionId.toString()));
-			}
-
-			List<Option> options = optionRepository.getOptionsForQuestions(questionId);
-
-			boolean correctAnswer = options.stream().anyMatch(Option::getIsCorrect);
-
-			if (!correctAnswer) {
-				throw new InvalidEntityException(ServiceMessages.NO_CORRECT_ANSWER);
-			}
-			
-		    List<OptionResponse> responseList = new ArrayList<>();
-
-		    options.forEach(option -> {
-		    	OptionResponse optionResponse = optionMapper.optionToOptionresponse(option);
-				optionResponse.setQuestionId(questionId);
-		    	
-		    	responseList.add(optionResponse);
-		    });
-			return responseList;
-
-		} catch (Exception e) {
-			throw e;
-
+		if (question == null) {
+			throw new InvalidEntityException(ServiceMessages.invalidEntity("question", questionId.toString()));
 		}
+
+		List<Option> options = optionRepository.getOptionsForQuestions(questionId);
+
+		boolean correctAnswer = options.stream().anyMatch(Option::getIsCorrect);
+
+		if (!correctAnswer) {
+			throw new InvalidEntityException(ServiceMessages.NO_CORRECT_ANSWER);
+		}
+
+		List<OptionResponse> responseList = new ArrayList<>();
+
+		options.forEach(option -> {
+			OptionResponse optionResponse = optionMapper.optionToOptionresponse(option);
+			optionResponse.setQuestionId(questionId);
+
+			responseList.add(optionResponse);
+		});
+		return responseList;
 	}
 	
 	public OptionResponse updateOption(Long optionId, OptionRequest optionRequest) throws InvalidEntityException, DuplicateEntityException {

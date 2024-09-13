@@ -7,7 +7,6 @@ import java.util.Objects;
 import java.util.Optional;
 
 import com.quizlier.common.vo.ServiceMessages;
-import com.quizlier.core.mappers.OptionMapper;
 import com.quizlier.core.mappers.QuestionMapper;
 import org.springframework.stereotype.Service;
 
@@ -63,27 +62,6 @@ public class QuestionService {
 			return questions;
 	}
 	
-//	public List<QuestionResponse> getAllQuestionsByCategory(Long categoryId) throws InvalidEntityException {
-//		Category category = categoryService.getSingleCategory(categoryId);
-//
-//		if (category == null) {
-//			throw new InvalidEntityException(ServiceMessages.invalidEntity("Category", categoryId.toString()));
-//		}
-//
-//		List<Question> questions = questionRepository.getQuestionsForCategory(categoryId);
-//
-//		List<QuestionResponse> responseList = new ArrayList<>();
-//
-//		questions.forEach(question -> {
-//			QuestionResponse questionResponse = questionMapper.questionToQuestionresponse(question);
-//			questionResponse.setCategoryId(categoryId);
-//
-//			responseList.add(questionResponse);
-//		});
-//
-//		return responseList;
-//	}
-	
 	public QuestionResponse getQuestion(Long questionId) throws InvalidEntityException {
 			Optional<Question> question = questionRepository.findById(questionId);
 			
@@ -91,12 +69,16 @@ public class QuestionService {
 				throw new InvalidEntityException(ServiceMessages.invalidEntity("Question", questionId.toString()));
 			}
 			
-			QuestionResponse data = new QuestionResponse();
+//			QuestionResponse data = new QuestionResponse();
+//
+//			data.setId(question.get().getId());
+//			data.setQuestion(question.get().getQuestion());
+//			data.setCategoryId(question.get().getCategory().getId());
+
+			QuestionResponse questionResponse = questionMapper.questionToQuestionresponse(question.get());
+			questionResponse.setCategoryId(question.get().getCategory().getId());
 			
-			data.setId(question.get().getId());
-			data.setQuestion(question.get().getQuestion());
-			
-			return data;
+			return questionResponse;
 	}
 	
 	public QuestionResponse updateQuestion(Long questionId, QuestionRequest questionRequest) throws InvalidEntityException, DuplicateEntityException {
