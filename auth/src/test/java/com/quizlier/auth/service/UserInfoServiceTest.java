@@ -18,7 +18,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 
 
@@ -37,7 +36,7 @@ class UserInfoServiceTest extends AbstractMockitoJUnitTest {
         user.setId(1L);
         user.setUsername(username);
         user.setPassword(RandomStringUtils.randomAlphanumeric(8, 20));
-        user.setUserRole(UserRole.player);
+        user.setUserRole(UserRole.PLAYER);
 
 
         when(userRepository.findUserByUsername(username)).thenReturn(Optional.of(user));
@@ -46,7 +45,7 @@ class UserInfoServiceTest extends AbstractMockitoJUnitTest {
 
         assertNotNull(response);
         assertEquals(username, response.getUsername());
-        assertEquals("ROLE_player", response.getAuthorities().stream().map(GrantedAuthority::getAuthority).findFirst().get());
+        assertEquals("ROLE_PLAYER", response.getAuthorities().stream().map(GrantedAuthority::getAuthority).findFirst().get());
 
     }
 
