@@ -9,7 +9,7 @@ public class UserSession {
 
 	private String username;
 	
-	private HashSet<Long> answeredQuestionsIds = new HashSet<Long>();
+	private final HashSet<Long> answeredQuestionsIds = new HashSet<Long>();
 
 	private int score = 0;
 

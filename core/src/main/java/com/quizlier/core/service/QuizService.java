@@ -34,9 +34,7 @@ public class QuizService {
 		
 		if (!availableQuestions.isEmpty()) {
 			Question nextQuestion = availableQuestions.get(0);
-			
-			userSession.addAnsweredQuestion(nextQuestion.getId());
-			
+
 			return nextQuestion;
 		} else {
 			return null;
@@ -52,14 +50,27 @@ public class QuizService {
 		}
 
 		UserScore userScore = new UserScore();
-		userScore.setScore(userScore.getScore());
+		userScore.setScore(userSession.getScore());
 
-		if (userSession.getScore() > userSession.getHighest_score()) {
-			userSession.setHighest_score(userSession.getScore());
-			authService.sendUserHighscore(userSession.getUsername(), String.valueOf(userSession.getScore()));
-		}
+//		if (userSession.getScore() > userSession.getHighest_score()) {
+//			userSession.setHighest_score(userSession.getScore());
+//			authService.sendUserHighscore(userSession.getUsername(), String.valueOf(userSession.getScore()));
+//		}
+
+		userSession.addAnsweredQuestion(answerSubmission.getQuestionId());
 
 		return userScore;
+	}
+
+	public Integer endQuiz() {
+		int finalScore = userSession.getScore();
+		int highestScore = authService.getHighestScore(userSession.getUsername());
+
+		if (finalScore > highestScore) {
+			authService.sendUserHighscore(userSession.getUsername(), String.valueOf(finalScore));
+		}
+
+		return finalScore;
 
 	}
 	
