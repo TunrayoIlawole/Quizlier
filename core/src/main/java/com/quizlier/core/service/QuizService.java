@@ -52,11 +52,6 @@ public class QuizService {
 		UserScore userScore = new UserScore();
 		userScore.setScore(userSession.getScore());
 
-//		if (userSession.getScore() > userSession.getHighest_score()) {
-//			userSession.setHighest_score(userSession.getScore());
-//			authService.sendUserHighscore(userSession.getUsername(), String.valueOf(userSession.getScore()));
-//		}
-
 		userSession.addAnsweredQuestion(answerSubmission.getQuestionId());
 
 		return userScore;

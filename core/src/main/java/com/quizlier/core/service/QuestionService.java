@@ -68,12 +68,6 @@ public class QuestionService {
 			if (question.isEmpty()) {
 				throw new InvalidEntityException(ServiceMessages.invalidEntity("Question", questionId.toString()));
 			}
-			
-//			QuestionResponse data = new QuestionResponse();
-//
-//			data.setId(question.get().getId());
-//			data.setQuestion(question.get().getQuestion());
-//			data.setCategoryId(question.get().getCategory().getId());
 
 			QuestionResponse questionResponse = questionMapper.questionToQuestionresponse(question.get());
 			questionResponse.setCategoryId(question.get().getCategory().getId());

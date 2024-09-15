@@ -40,13 +40,9 @@ public class UserService {
 			throw new DuplicateUserException(ServiceMessages.DUPLICATE_USERNAME);
 		}
 		
-		User user = new User();
+		User user = userMapper.userRequestToUser(userRequest);
+
 		UserRole userRole = role.equalsIgnoreCase("admin") ? UserRole.ADMIN : UserRole.PLAYER;
-		
-		user.setEmail(userRequest.getEmail());
-		user.setUsername(userRequest.getUsername());
-		user.setFirstName(userRequest.getFirstName());
-		user.setLastName(userRequest.getLastName());
 		user.setPassword(encoder.encode(userRequest.getPassword()));
 		user.setUserRole(userRole);
 		user.setHighest_score(0);

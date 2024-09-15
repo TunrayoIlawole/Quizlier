@@ -63,10 +63,7 @@ public class OptionService {
 						optionRepository.save(correctAnswer.get());
 					}
 				}
-				Option option = new Option();
-				
-				option.setOption_text(request.getOptionText());
-				option.setIsCorrect(request.getIsCorrect());
+				Option option = optionMapper.optionRequestToOption(request);
 				option.setCreatedAt(Calendar.getInstance().getTime());
 				option.setQuestion(question);
 				
