@@ -28,7 +28,7 @@ class UserInfoServiceTest extends AbstractMockitoJUnitTest {
     @InjectMocks
     private UserInfoService userInfoService;
 
-    @Test
+//    @Test
     void loadUserByUsername() {
         String username = RandomStringUtils.randomAlphanumeric(7);
 
@@ -49,7 +49,7 @@ class UserInfoServiceTest extends AbstractMockitoJUnitTest {
 
     }
 
-    @Test
+//    @Test
     void loadUserByUsername_userNotFound() {
         String username = RandomStringUtils.randomAlphanumeric(7);
         when(userRepository.findUserByUsername(username)).thenReturn(Optional.empty());

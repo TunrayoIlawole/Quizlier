@@ -42,7 +42,20 @@ public class UserService {
 		
 		User user = userMapper.userRequestToUser(userRequest);
 
-		UserRole userRole = role.equalsIgnoreCase("admin") ? UserRole.ADMIN : UserRole.PLAYER;
+		UserRole userRole;
+		switch (role.toUpperCase()) {
+			case "ADMIN":
+				userRole = UserRole.ADMIN;
+				break;
+			case "SUPER_ADMIN":
+				userRole = UserRole.SUPER_ADMIN;
+				break;
+			case "PLAYER":
+				userRole = UserRole.PLAYER;
+				break;
+			default:
+				throw new IllegalArgumentException("Invalid role: " + role);
+		}
 		user.setPassword(encoder.encode(userRequest.getPassword()));
 		user.setUserRole(userRole);
 		user.setHighest_score(0);

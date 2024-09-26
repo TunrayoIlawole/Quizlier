@@ -98,8 +98,20 @@ public class TestUtil {
 
         option.setId(optionId);
         option.setIsCorrect(isCorrect);
-        option.setOption_text(RandomStringUtils.randomAlphabetic(12));
+        option.setOptionText(RandomStringUtils.randomAlphabetic(12));
         option.setQuestion(buildQuestion(7L, 2L));
+        option.setCreatedAt(new Date());
+
+        return option;
+    }
+
+    public static Option buildOption(Long questionId, Long optionId, Boolean isCorrect) {
+        Option option = new Option();
+
+        option.setId(optionId);
+        option.setIsCorrect(isCorrect);
+        option.setOptionText(RandomStringUtils.randomAlphabetic(12));
+        option.setQuestion(buildQuestion(questionId, 2L));
         option.setCreatedAt(new Date());
 
         return option;
@@ -123,6 +135,17 @@ public class TestUtil {
         options.add(buildOption(2L, false));
         options.add(buildOption(3L, false));
         options.add(buildOption(4L, false));
+
+        return options;
+    }
+
+    public static List<Option> buildOptionsForQuestion(Long questionId) {
+        List<Option> options = new ArrayList<>();
+
+        options.add(buildOption(questionId, 1L, true));
+        options.add(buildOption(questionId, 2L, false));
+        options.add(buildOption(questionId, 3L, false));
+        options.add(buildOption(questionId, 4L, false));
 
         return options;
     }

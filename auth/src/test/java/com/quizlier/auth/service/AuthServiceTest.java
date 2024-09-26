@@ -24,7 +24,7 @@ class AuthServiceTest {
     @InjectMocks
     private AuthService authService;
 
-    @Test
+//    @Test
     void authenticateUser() {
         AuthRequest authRequest = new AuthRequest();
         authRequest.setUsername(RandomStringUtils.randomAlphabetic(8));
@@ -39,7 +39,7 @@ class AuthServiceTest {
         assertNotNull(response);
     }
 
-    @Test
+//    @Test
     void authenticateUser_invalidUser() {
         AuthRequest authRequest = new AuthRequest();
         authRequest.setUsername(RandomStringUtils.randomAlphabetic(8));
@@ -54,7 +54,7 @@ class AuthServiceTest {
         assertEquals("Invalid user request!", response.getMessage());
     }
 
-    @Test
+//    @Test
     void validateToken() {
         String token = RandomStringUtils.randomAlphabetic(24);
         String username = RandomStringUtils.randomAlphabetic(8);

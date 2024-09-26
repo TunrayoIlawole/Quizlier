@@ -1,10 +1,8 @@
 spring:
-  main:
-    allow-circular-references: true
   application:
     name: auth
   datasource:
-    url: ${SPRING_DATASOURCE_URL}
+    url: jdbc:postgresql://localhost:5435/auth
     username: ${SPRING_DATASOURCE_USERNAME}
     password: ${SPRING_DATASOURCE_PASSWORD}
   jpa:
@@ -14,16 +12,18 @@ spring:
       hibernate.format_sql: false
       hibernate.show_sql : false
       hibernate.jdbc.lob.non_contextual_creation : true
+      hibernate.default_schema: auth_service
     hibernate.naming:
       implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyJpaImpl
       physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
     flyway:
       enabled: true
-      url: ${SPRING_DATASOURCE_URL}
+      url: jdbc:postgresql://localhost:5435/auth
       password: ${SPRING_DATASOURCE_PASSWORD}
       user: ${SPRING_DATASOURCE_USERNAME}
-      schemas: migrations
-    
+      locations: classpath:/db/migration/auth/
+      schemas: auth_service
+
 server:
   port: 8052
   servlet:

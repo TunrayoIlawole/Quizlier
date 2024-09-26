@@ -47,7 +47,7 @@ public class OptionService {
 			}
 			
 			for (Option option : options) {
-				if (option.getOption_text().equals(request.getOptionText())) {
+				if (option.getOptionText().equals(request.getOptionText())) {
 					existingOption = option;
 					break;
 				}
@@ -63,6 +63,7 @@ public class OptionService {
 						optionRepository.save(correctAnswer.get());
 					}
 				}
+
 				Option option = optionMapper.optionRequestToOption(request);
 				option.setCreatedAt(Calendar.getInstance().getTime());
 				option.setQuestion(question);
@@ -132,16 +133,16 @@ public class OptionService {
 				List<Option> options = optionRepository.getOptionsForQuestions(optionById.get().getQuestion().getId());
 
 				for (Option option : options) {
-					if (option.getOption_text().equals(optionRequest.getOptionText())) {
+					if (option.getOptionText().equals(optionRequest.getOptionText())) {
 						existingOption = option;
 						break;
 					}
 				}
 				
-				if (existingOption != null) {
+				if (existingOption != null && !Objects.equals(existingOption.getId(), optionById.get().getId())) {
 					throw new DuplicateEntityException(ServiceMessages.DUPLICATE_OPTIONS);
 				}
-				optionById.get().setOption_text(optionRequest.getOptionText());
+				optionById.get().setOptionText(optionRequest.getOptionText());
 			}
 			
 			optionById.get().setUpdatedAt(Calendar.getInstance().getTime());

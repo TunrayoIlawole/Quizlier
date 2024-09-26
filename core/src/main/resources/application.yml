@@ -2,7 +2,7 @@ spring:
   application:
     name: core
   datasource:
-    url: ${SPRING_DATASOURCE_URL}
+    url: jdbc:postgresql://localhost:5434/core
     username: ${SPRING_DATASOURCE_USERNAME}
     password: ${SPRING_DATASOURCE_PASSWORD}
   jpa:
@@ -12,15 +12,18 @@ spring:
       hibernate.format_sql: false
       hibernate.show_sql : false
       hibernate.jdbc.lob.non_contextual_creation : true
+      hibernate.default_schema: core_service
     hibernate.naming:
       implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyJpaImpl
       physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
     flyway:
       enabled: true
-      url: ${SPRING_DATASOURCE_URL}
+      url: jdbc:postgresql://localhost:5434/core
       password: ${SPRING_DATASOURCE_PASSWORD}
       user: ${SPRING_DATASOURCE_USERNAME}
-      schemas: migrations
+      locations: classpath:/db/migration/core/
+      schemas: core_service
+
 
 server:
   port: 8056

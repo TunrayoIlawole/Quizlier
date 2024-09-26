@@ -62,13 +62,9 @@ public class CategoryService {
             throw new InvalidEntityException(ServiceMessages.invalidEntity("Category", categoryId.toString()));
         }
 
-        CategoryResponse data = new CategoryResponse();
+		CategoryResponse categoryResponse = categoryMapper.categoryToCategoryresponse(category.get());
 
-        data.setId(category.get().getId());
-        data.setName(category.get().getName());
-        data.setDescription(category.get().getDescription());
-
-        return data;
+        return categoryResponse;
 
     }
 	
@@ -98,8 +94,6 @@ public class CategoryService {
 	}
 	
 	public void deleteCategory(Long categoryId) throws InvalidEntityException {
-		ResponseData response = new ResponseData<>(ServiceStatusCodes.ERROR, ServiceMessages.GENERAL_ERROR_MESSAGE);
-
 		boolean exists = categoryRepository.existsById(categoryId);
 		
 		if (!exists) {
