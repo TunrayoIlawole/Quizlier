@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS core_service.question
 CREATE TABLE IF NOT EXISTS core_service.option
 (
 	id bigserial not null primary key,
-	option_text text not null,
+	optionText text not null,
 	isCorrect boolean not null,
 	createdAt timestamp default current_timestamp,
     updatedAt timestamp default current_timestamp,
