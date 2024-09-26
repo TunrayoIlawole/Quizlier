@@ -1,4 +1,4 @@
-CREATE TYPE user_role AS ENUM ('admin', 'super-admin', 'player');
+CREATE TYPE user_role AS ENUM ('ADMIN', 'SUPER_ADMIN', 'PLAYER');
 
 CREATE TABLE IF NOT EXISTS auth_service.user
 (
