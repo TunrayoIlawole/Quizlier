@@ -8,8 +8,7 @@ import com.quizlier.common.dto.AnswerSubmission;
 import com.quizlier.common.dto.UserScore;
 import com.quizlier.common.entity.Option;
 import com.quizlier.common.entity.Question;
-import com.quizlier.core.repository.OptionRepository;
-import com.quizlier.core.repository.QuestionRepository;
+
 import com.quizlier.core.util.UserSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,9 +16,7 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class QuizService {
-
-	private final QuestionRepository questionRepository;
-	private final OptionRepository optionRepository;
+	private final OptionService optionService;
 
 	private final QuestionService questionService;
 
@@ -29,8 +26,7 @@ public class QuizService {
 
 	public Question getNextQuestion(Long activeCategory) {
 
-		// question service
-		List<Question> questionsByCategory = questionRepository.getQuestionsForCategory(activeCategory);
+		List<Question> questionsByCategory = questionService.getQuestionsForCategory(activeCategory);
 		
 		List<Question> availableQuestions = questionsByCategory.stream().filter(question -> 
 			!userSession.getAnsweredQuestions().contains(question.getId())
@@ -38,9 +34,7 @@ public class QuizService {
 		
 		if (!availableQuestions.isEmpty()) {
 			Question nextQuestion = availableQuestions.get(0);
-			
-			userSession.addAnsweredQuestion(nextQuestion.getId());
-			
+
 			return nextQuestion;
 		} else {
 			return null;
@@ -49,21 +43,29 @@ public class QuizService {
 	}
 
 	public UserScore submitAnswer(AnswerSubmission answerSubmission) {
-		Optional<Option> currentOption = optionRepository.findById(answerSubmission.getSelectedOption());
+		Option currentOption = optionService.getOption(answerSubmission.getSelectedOption());
 
-		if (currentOption.isPresent() && currentOption.get().getIsCorrect() && currentOption.get().getQuestion().getId().equals(answerSubmission.getQuestionId())) {
+		if (currentOption != null && currentOption.getIsCorrect() && currentOption.getQuestion().getId().equals(answerSubmission.getQuestionId())) {
 			userSession.incrementScore();
 		}
 
 		UserScore userScore = new UserScore();
-		userScore.setScore(userScore.getScore());
+		userScore.setScore(userSession.getScore());
 
-		if (userSession.getScore() > userSession.getHighest_score()) {
-			userSession.setHighest_score(userSession.getScore());
-			authService.sendUserHighscore(userSession.getUsername(), String.valueOf(userSession.getScore()));
-		}
+		userSession.addAnsweredQuestion(answerSubmission.getQuestionId());
 
 		return userScore;
+	}
+
+	public Integer endQuiz() {
+		int finalScore = userSession.getScore();
+		int highestScore = authService.getHighestScore(userSession.getUsername());
+
+		if (finalScore > highestScore) {
+			authService.sendUserHighscore(userSession.getUsername(), String.valueOf(finalScore));
+		}
+
+		return finalScore;
 
 	}
 	

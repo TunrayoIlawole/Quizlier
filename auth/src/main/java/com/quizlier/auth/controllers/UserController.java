@@ -1,53 +1,31 @@
 package com.quizlier.auth.controllers;
 
-import com.quizlier.auth.exceptions.AuthenticationFailedException;
-import com.quizlier.auth.exceptions.DuplicateUserException;
-import com.quizlier.auth.exceptions.UserNotFoundException;
-import com.quizlier.auth.utils.UserInfoDetails;
+import com.quizlier.auth.service.AuthService;
 import com.quizlier.common.dto.*;
 import com.quizlier.common.entity.User;
 import com.quizlier.common.vo.ResponseData;
 import com.quizlier.common.vo.ServiceMessages;
 import com.quizlier.common.vo.ServiceStatusCodes;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import com.quizlier.auth.service.UserService;
-import com.quizlier.auth.utils.JwtService;
 
-import java.net.URI;
-import java.util.List;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("api/v1/auth")
 @CrossOrigin(origins = "http://localhost:4200")
 public class UserController {
 
 	public static String PLAYER = "player";
 	public static String ADMIN = "admin";
-	
-	@Autowired
-	private AuthenticationManager authenticationManager;
-	
-	@Autowired
-	private JwtService jwtService;
+
+	private final AuthService authService;
 	
 	private final UserService userService;
-	
-	@Autowired
-	public UserController(UserService userService, AuthenticationManager authenticationManager) {
-		this.userService = userService;
-		this.authenticationManager = authenticationManager;
-	}
 	
 	@GetMapping("/welcome")
 	public void test() {
@@ -70,122 +48,53 @@ public class UserController {
 	
 	@PostMapping("/signup/player")
 	public ResponseEntity signUpPlayer(@RequestBody UserSignupRequest userRequest) {
-		ResponseData<UserSignupResponse> response = new ResponseData<>(ServiceStatusCodes.ERROR, ServiceMessages.GENERAL_ERROR_MESSAGE);
-		try {
-			User user = userService.createPlayerUser(userRequest, PLAYER);
+		UserSignupResponse userSignupResponse = userService.createPlayerUser(userRequest, PLAYER);
 
-			UserSignupResponse userSignupResponse = new UserSignupResponse();
-			userSignupResponse.setEmail(user.getEmail());
-			userSignupResponse.setUsername(user.getUsername());
-			userSignupResponse.setFirstName(user.getFirstName());
-			userSignupResponse.setLastName(user.getLastName());
-			userSignupResponse.setId(user.getId().toString());
-			userSignupResponse.setUserRole(user.getUserRole().name());
+		ResponseData<UserSignupResponse> response = new ResponseData<>(ServiceStatusCodes.SUCCESS, ServiceMessages.SUCCESS_RESPONSE);
+		response.setData(userSignupResponse);
 
-			response.setStatus(ServiceStatusCodes.SUCCESS);
-			response.setMessage(ServiceMessages.SUCCESS_RESPONSE);
-			response.setData(userSignupResponse);
-
-			return ResponseEntity.ok().body(response);
-		} catch (DuplicateUserException ex) {
-			response.setMessage(ex.getMessage());
-			return ResponseEntity.badRequest().body(response);
-		} catch (Exception e) {
-			return ResponseEntity.internalServerError().body(e.getMessage());
-		}
+		return ResponseEntity.ok().body(response);
 	}
 
 	@PostMapping("/signup/admin")
 	public ResponseEntity signUpAdmin(@RequestBody UserSignupRequest userRequest) {
-		ResponseData<UserSignupResponse> response = new ResponseData<>(ServiceStatusCodes.ERROR, ServiceMessages.GENERAL_ERROR_MESSAGE);
-		try {
-			User user = userService.createPlayerUser(userRequest, ADMIN);
+		UserSignupResponse userSignupResponse = userService.createPlayerUser(userRequest, ADMIN);
 
-			UserSignupResponse userSignupResponse = new UserSignupResponse();
-			userSignupResponse.setEmail(user.getEmail());
-			userSignupResponse.setUsername(user.getUsername());
-			userSignupResponse.setFirstName(user.getFirstName());
-			userSignupResponse.setLastName(user.getLastName());
-			userSignupResponse.setId(user.getId().toString());
-			userSignupResponse.setUserRole(user.getUserRole().name());
+		ResponseData<UserSignupResponse> response = new ResponseData<>(ServiceStatusCodes.SUCCESS, ServiceMessages.SUCCESS_RESPONSE);
+		response.setData(userSignupResponse);
 
-			response.setStatus(ServiceStatusCodes.SUCCESS);
-			response.setMessage(ServiceMessages.SUCCESS_RESPONSE);
-			response.setData(userSignupResponse);
-
-			return ResponseEntity.created(URI.create("")).body(response);
-		} catch (DuplicateUserException ex) {
-			response.setMessage(ex.getMessage());
-			return ResponseEntity.badRequest().body(response);
-		} catch (Exception e) {
-			return ResponseEntity.internalServerError().body(e.getMessage());
-		}
+		return ResponseEntity.ok().body(response);
 	}
 	
 	@PostMapping("/signin")
 	public ResponseEntity signIn(@RequestBody UserLoginRequest userLoginRequest) {
-		ResponseData<UserloginResponse> response = new ResponseData<>(ServiceStatusCodes.ERROR, ServiceMessages.GENERAL_ERROR_MESSAGE);
 
-		try {
-			User user = userService.signInPlayer(userLoginRequest);
-			AuthRequest authRequest = new AuthRequest();
-			authRequest.setUsername(user.getUsername());
-			authRequest.setPassword(userLoginRequest.getPassword());
+		UserloginResponse userloginResponse = userService.signInPlayer(userLoginRequest);
 
-			Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword()));
+		ResponseData<UserloginResponse> response = new ResponseData<>(ServiceStatusCodes.SUCCESS, ServiceMessages.AUTH_SUCCESS);
 
-			if (authentication.isAuthenticated()) {
-				String token = jwtService.generateToken(authRequest.getUsername());
-				UserloginResponse userloginResponse = new UserloginResponse();
-				userloginResponse.setEmail(user.getEmail());
-				userloginResponse.setUserId(user.getId().toString());
-				userloginResponse.setUsername(user.getUsername());
-				userloginResponse.setToken(token);
-
-				response.setStatus(ServiceStatusCodes.SUCCESS);
-				response.setData(userloginResponse);
-				response.setMessage("User authenticated successfully");
-				return ResponseEntity.ok().body(response);
-			} else {
-				throw new UsernameNotFoundException("Invalid user request!");
-			}
-		} catch (UserNotFoundException | UsernameNotFoundException ex) {
-			response.setMessage(ex.getMessage());
-			return ResponseEntity.status(HttpStatusCode.valueOf(404)).body(response);
-		} catch (AuthenticationFailedException ex) {
-			response.setMessage(ex.getMessage());
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
-		} catch (Exception e) {
-			return ResponseEntity.internalServerError().body(e.getMessage());
-
-		}
+		response.setData(userloginResponse);
+		return ResponseEntity.ok().body(response);
 	}
 
 	@GetMapping("/validateToken")
 	public ResponseEntity<Boolean> validateToken(@RequestParam("token") String token) {
-		String username = jwtService.extractUsername(token);
-		boolean isValid = jwtService.validateToken(token, username);
+		boolean isValid = authService.validateToken(token);
 
 		return ResponseEntity.ok(isValid);
 	}
 
 	@GetMapping("/getUsername")
 	public ResponseEntity<String> fetchUsername(@RequestParam("token") String token) {
-		String username = jwtService.extractUsername(token);
-
-		return ResponseEntity.ok(username);
+		return ResponseEntity.ok(authService.fetchUsername(token));
 	}
-
-
 
 	@GetMapping("/roles")
 	public ResponseEntity<String> getUserRoles(@RequestParam("username") String username) {
 		User user = userService.getUserByUsername(username);
 
 		if (user != null) {
-			String userRole = user.getUserRole().name();
-
-			return ResponseEntity.ok(userRole);
+			return ResponseEntity.ok(user.getUserRole().name());
 		} else {
 			return ResponseEntity.notFound().build();
 		}
@@ -196,9 +105,7 @@ public class UserController {
 		User user = userService.getUserByUsername(username);
 
 		if (user != null) {
-			int highestScore = user.getHighest_score();
-
-			return ResponseEntity.ok(highestScore);
+			return ResponseEntity.ok(user.getHighest_score());
 		} else {
 			return ResponseEntity.notFound().build();
 		}

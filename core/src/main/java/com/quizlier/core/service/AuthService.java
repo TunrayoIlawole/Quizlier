@@ -1,11 +1,7 @@
 package com.quizlier.core.service;
 
-import com.quizlier.auth.utils.UserInfoDetails;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.Response;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -57,10 +53,6 @@ public class AuthService {
     }
 
     public void sendUserHighscore(String username, String highScore) {
-        try {
-            restTemplate.postForEntity(AUTH_URL + "/highscore?username=" + username + "&score=" + highScore, null, String.class);
-        } catch (Exception e) {
-            throw e;
-        }
+        restTemplate.postForEntity(AUTH_URL + "/highscore?username=" + username + "&score=" + highScore, null, String.class);
     }
 }

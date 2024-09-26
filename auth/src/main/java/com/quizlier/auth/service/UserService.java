@@ -5,40 +5,30 @@ import java.util.Optional;
 import com.quizlier.auth.exceptions.AuthenticationFailedException;
 import com.quizlier.auth.exceptions.DuplicateUserException;
 import com.quizlier.auth.exceptions.UserNotFoundException;
-import com.quizlier.common.dto.UserSignupRequest;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import com.quizlier.auth.mappers.UserMapper;
+import com.quizlier.common.dto.*;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.quizlier.auth.repository.UserRepository;
-import com.quizlier.auth.utils.UserInfoDetails;
-import com.quizlier.common.dto.UserLoginRequest;
 import com.quizlier.common.entity.User;
 import com.quizlier.common.entity.UserRole;
-import com.quizlier.common.vo.ResponseData;
 import com.quizlier.common.vo.ServiceMessages;
-import com.quizlier.common.vo.ServiceStatusCodes;
 
 @Service
-public class UserService implements UserDetailsService {
+@RequiredArgsConstructor
+public class UserService {
 
-	@Autowired
-	private UserRepository userRepository;
+	private final UserRepository userRepository;
+
+	private final PasswordEncoder encoder;
+
+	private final AuthService authService;
+
+	private final UserMapper userMapper;
 	
-	@Autowired
-	private PasswordEncoder encoder;
-	
-//	@Autowired
-//	public UserService(UserRepository userRepository, PasswordEncryption passwordEncryption) {
-//		this.userRepository = userRepository;
-//		this.passwordEncryption = passwordEncryption;
-//	}
-	
-	public User createPlayerUser(UserSignupRequest userRequest, String role) throws DuplicateUserException {
-		try {
+	public UserSignupResponse createPlayerUser(UserSignupRequest userRequest, String role) throws DuplicateUserException {
 		Optional<User> userByEmail = userRepository.findUserByEmail(userRequest.getEmail());
 		
 		Optional<User> userByUsername = userRepository.findUserByUsername(userRequest.getUsername());
@@ -50,50 +40,55 @@ public class UserService implements UserDetailsService {
 			throw new DuplicateUserException(ServiceMessages.DUPLICATE_USERNAME);
 		}
 		
-		User user = new User();
-		UserRole userRole = role.equalsIgnoreCase("admin") ? UserRole.admin : UserRole.player;
-		
-		user.setEmail(userRequest.getEmail());
-		user.setUsername(userRequest.getUsername());
-		user.setFirstName(userRequest.getFirstName());
-		user.setLastName(userRequest.getLastName());
+		User user = userMapper.userRequestToUser(userRequest);
+
+		UserRole userRole;
+		switch (role.toUpperCase()) {
+			case "ADMIN":
+				userRole = UserRole.ADMIN;
+				break;
+			case "SUPER_ADMIN":
+				userRole = UserRole.SUPER_ADMIN;
+				break;
+			case "PLAYER":
+				userRole = UserRole.PLAYER;
+				break;
+			default:
+				throw new IllegalArgumentException("Invalid role: " + role);
+		}
 		user.setPassword(encoder.encode(userRequest.getPassword()));
 		user.setUserRole(userRole);
 		user.setHighest_score(0);
 		
 		userRepository.save(user);
+
+		UserSignupResponse userSignupResponse = userMapper.userToUsersignupresponse(user);
 		
-		return user;
-		} catch (Exception e) {
-			throw e;
-		}
+		return userSignupResponse;
 	}
 	
-	public User signInPlayer (UserLoginRequest userLoginRequest) throws UserNotFoundException, AuthenticationFailedException {
-		try {
+	public UserloginResponse signInPlayer (UserLoginRequest userLoginRequest) throws UserNotFoundException, AuthenticationFailedException {
 			Optional<User> userByEmail = userRepository.findUserByEmail(userLoginRequest.getEmail());
 			
 			if (!userByEmail.isPresent()) {
 				throw new UserNotFoundException(ServiceMessages.INVALID_USER);
 			} else {
 				Boolean matched = encoder.matches(userLoginRequest.getPassword(), userByEmail.get().getPassword());
-//				String hashedPassword = passwordEncryption.toHexString(passwordEncryption.getSHA(userLoginRequest.getPassword()));
-				
+
 				if (!matched) {
 					throw new AuthenticationFailedException(ServiceMessages.CREDENTIALS_MISMATCH);
 				} else {
-					return userByEmail.get();
+					AuthRequest authRequest = new AuthRequest();
+					authRequest.setUsername(userByEmail.get().getUsername());
+					authRequest.setPassword(userLoginRequest.getPassword());
+
+					String token = authService.authenticateUser(authRequest);
+					UserloginResponse userloginResponse = userMapper.userToUserLoginResponse(userByEmail.get());
+					userloginResponse.setToken(token);
+
+					return userloginResponse;
 				}
 			}
-		} catch (Exception e) {
-			throw e;
-		}
-	}
-	
-	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		Optional<User> user = userRepository.findUserByUsername(username);
-		
-		return user.map(UserInfoDetails::new).orElseThrow(() -> new UsernameNotFoundException("User not found " + username));
 	}
 
 	public User getUserByUsername(String username) {

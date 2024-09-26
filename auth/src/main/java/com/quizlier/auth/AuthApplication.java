@@ -11,7 +11,6 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @EntityScan(basePackages = {"com.quizlier.common.entity"})
 @EnableJpaRepositories(basePackages = "com.quizlier.auth.repository")
 @EnableDiscoveryClient
-//@ComponentScan(basePackages = "com.quizlier.auth")
 public class AuthApplication {
 
 	public static void main(String[] args) {
